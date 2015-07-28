@@ -7,6 +7,10 @@ Author: Zamatica
 
 Release: 1.3.0
 
+
+TESTED ON WINDOWS ONLY, SORRY OTHER USERS
+
+
 You Need:
 	
 	- Python 3.x.x ( https://www.python.org/downloads/ )
