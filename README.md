@@ -6,6 +6,7 @@ ZamaticaBat
 Author: Zamatica
 
 Release: 1.3.0
+
 Releases: https://github.com/Zamatica/ZamaticaBat/releases
 
 TESTED ON WINDOWS ONLY, SORRY OTHER USERS
