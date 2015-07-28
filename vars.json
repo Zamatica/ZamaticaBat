@@ -1,0 +1,53 @@
+{
+  "connection": {
+    "HOST": "irc.twitch.tv",
+    "PORT": "6667",
+    "CHAN": "# Your Channel Here LOWERCASE",
+    "NICK": "Bot Name Here",
+    "PASS": "Go here: http://twitchapps.com/tmi/"
+  },
+
+    "variables": {
+      "CHATTERS": "https://tmi.twitch.tv/group/user/YOUR CHANNEL HERE LOWERCASE/chatters",
+
+      "TIMEZONE": "CST",
+
+
+      "BROADCAST_ENABLED":"0",
+
+      "BROADCAST": "",
+      "BROADCAST_SHOWN": "60.0",
+
+
+      "MEDIA_ENABLED": "0",
+
+      "TITLE": "None",
+      "TITLE_SHOWN": "75.0",
+
+      "SOCIAL_MEDIA": "None",
+      "MEDIA_SHOWN": "180.0",
+
+
+      "TIMEOUT_TIME": "45",
+      "TIMEOUT_LIMIT": "3",
+
+      "UPDATE":"60.0",
+
+      "BANNED_WORDS": [
+          "blurryface",
+          "apollo_oz"
+        ],
+
+
+      "BROADCASTER": " YOUR NAME",
+
+
+      "CURRENCY_ENABLED": "1",
+
+      "CURRENCY_MINUS": "20",
+
+      "UPDATE_CURRENCY": "3600",
+
+      "CURRENCY_VALUE": "15"
+  }
+}
