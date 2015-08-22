@@ -26,16 +26,16 @@ Features
 
 ### Variables
 
-For connections: <---------------------------------------------- IMPORTANT
+For connections:
 - CHAN
 - NICK
 - PASS ( have to use a oAuth Token, go here: http://twitchapps.com/tmi/ )
 
 Others:
 - TIMEZONE
-- URL ( replace "----USERNAME----" with your twitch name ) <-- IMPORTANT
+- URL ( replace "----USERNAME----" with your twitch name )
 - BANNED_WORDS
-- BROADCASTER <----------------------------------------------- IMPORTANT
+- BROADCASTER
 - If media is enabled:
 	- TITLE
 	- SOCIAL_MEDIA
