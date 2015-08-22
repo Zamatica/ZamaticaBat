@@ -7,7 +7,7 @@ A simple python twitch bot.
 
 Lastest Release: 1.3.0
 
-TESTED ON WINDOWS ONLY, SORRY OTHER USERS
+Tested on Windows
 
 ### Dependencies
 
@@ -46,28 +46,28 @@ Others:
 ### Commands List
 
 All:
-	!help - you get the idea
-	!time - displays your pc's time
-	!uptime - Uptime of the stream (from when bot opened and connected)
-	!stats - displays stats of the sender
-	!quote - displays a quote from quotes.txt
-	!coin - displays current currency (if not mod/broadcaster)
-	!run - shows the runs(?)
+- !help - you get the idea
+- !time - displays your pc's time
+- !uptime - Uptime of the stream (from when bot opened and connected)
+- !stats - displays stats of the sender
+- !quote - displays a quote from quotes.txt
+- !coin - displays current currency (if not mod/broadcaster)
+- !run - shows the runs(?)
 		
 Mods:
-	!on - test to see if bot running
-	!admin - shows you are mod
-	!runtime - test bot runtime (runs equation) from chat
-	!pong - shows connection lag
-	!conn - test connection to database
-	!quoteadd - saved in quotes.txt
-	!coin - add/sub/set currency
-	!update - updates viewers
-	!runset - sets the display to !run
+- !on - test to see if bot running
+- !admin - shows you are mod
+- !runtime - test bot runtime (runs equation) from chat
+- !pong - shows connection lag
+- !conn - test connection to database
+- !quoteadd - saved in quotes.txt
+- !coin - add/sub/set currency
+- !update - updates viewers
+- !runset - sets the display to !run
 		
 Broadcaster/Editor:
-	!off - turns bot off
-	!broad - turns on broadcast if not on or will run them
+- !off - turns bot off
+- !broad - turns on broadcast if not on or will run them
 
 
 ### Changelog:
