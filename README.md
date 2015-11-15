@@ -2,7 +2,7 @@
 
 ZamaticaBat
 -
-
+ZamaticaBat is a simple python bot for twitch. The connection is base on a IRC connection from Sevadus. It is capable of multiple things, with more to come soon. To run the bot, simply install Python3 and double click on either **zamaticabat_base.py** or **init.py**. 
 ### Table of Contents
  - [Dependencies](#dependencies)
  - [Optional](#optional)
@@ -113,4 +113,3 @@ Releases: https://github.com/Zamatica/ZamaticaBat/releases
 ### To Do:
 
  - Maybe Foobar2000/WinAmp/WMP/Spotify Contoller ( no zune )
-
