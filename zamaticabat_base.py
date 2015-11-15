@@ -852,7 +852,7 @@ send_nick(NICK)
 join_channel(CHAN)
 
 data = ""
-BOT_ENABLED = 1
+BOT_ENABLED = 0
 
 send_message(CHAN, "/TWITCHCLIENT 3")
 
@@ -872,6 +872,7 @@ def connect_no_mod():
         update_viewers()
 
         print("-- BOT: Connected to " + USER + ". Online and ready. Version 1.3")
+        send_message(CHAN, "Connected and ready to go " + USER + ".")
 
         command_start_all()
         viewers()
