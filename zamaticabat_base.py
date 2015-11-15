@@ -1,29 +1,30 @@
-__author__ = 'Force3'
+__author__ = 'Zamatica'
 
 # !/usr/bin/env python3
 
-import re
 import socket
-import sys
 import datetime
 import sqlite3
 import threading
 import json
-import urllib.request
 import random
 import linecache
+import re
+import sys
+import ctypes
+from updates import *
+
 
 # --------------------------------------------- Start Settings ---------------------------------------------------- #
 
 with open("vars.json") as file:
     VARS = json.load(file)
 
-
 HOST = VARS["connection"]["HOST"]            # Host
 PORT = VARS["connection"]["PORT"]            # Port
 CHAN = VARS["connection"]["CHAN"]            # # + Your Twitch Username
 NICK = VARS["connection"]["NICK"]            # Your Bot's Twitch username
-PASS = VARS["connection"]["PASS"]            # http://www.twitchapps.com/tmi/ -- Talk to Zamatica about this.
+PASS = VARS["connection"]["PASS"]            # http://www.twitchapps.com/tmi/ -- Google This.
 
 PORT = int(PORT)
 
@@ -33,12 +34,9 @@ PORT = int(PORT)
 
 start = datetime.datetime.now()
 
-
-URL = VARS["variables"]["CHATTERS"]
-
+USER = VARS["connection"]["CHAN"][1:100]
 
 TIMEZONE = VARS["variables"]["TIMEZONE"]  # Change to Yours
-
 
 MEDIA_ENABLED = int(VARS["variables"]["MEDIA_ENABLED"])  # Show title/media every time. Default 0
 
@@ -62,6 +60,9 @@ TIMEOUT_LIMIT = int(VARS["variables"]["TIMEOUT_LIMIT"])  # Limit for number of o
 
 UPDATE = float(VARS["variables"]["UPDATE"])   # How often user list is updated
 
+SUBS = int(VARS["variables"]["SUBS"])
+SUB_OAUTH = VARS["variables"]["SUB_OAUTH"]
+
 # VARIABLE = {}  <-- {'word', 'word2', 'word3'} can have more than 3
 
 BANNED_WORDS = VARS["variables"]["BANNED_WORDS"]   # ... add what ever you like, no spaces, ALL LOWERCASE
@@ -69,14 +70,20 @@ BANNED_WORDS = VARS["variables"]["BANNED_WORDS"]   # ... add what ever you like,
 
 BROADCASTER = VARS["variables"]["BROADCASTER"]  # YOU, Editors, and anyone you trust with this, ALL LOWERCASE
 
-# Currency - BETA
+# Currency
 CURRENCY_ENABLED = int(VARS["variables"]["CURRENCY_ENABLED"])  # Reward for spending time, default 0
 
 CURRENCY_MINUS = int(VARS["variables"]["CURRENCY_MINUS"])  # Punishment for offenses, default 20. Want to disable? make 0
 
+CURRENCY_VALUE = int(VARS["variables"]["CURRENCY_VALUE"])  # Set value of currency, default 15
+
 UPDATE_CURRENCY = int(VARS["variables"]["UPDATE_CURRENCY"])  # Time for currency to be added, in seconds, default 3600 (1 hour)
 
-CURRENCY_VALUE = int(VARS["variables"]["CURRENCY_VALUE"])  # Set value of currency, default 15
+# BETA Features
+WINDOW_SIZE = int(VARS["variables"]["WINDOW_SIZE"])
+
+MUSIC_ENABLED = int(VARS["variables"]["MUSIC_ENABLED"])
+
 
 # End User Variables
 
@@ -89,36 +96,8 @@ run = 'Nothing right now.'
 
 user_reg = {}
 user_mods = {}
-
-
-def update_viewers_mods():
-
-    threading.Timer(15.0, update_viewers_mods)
-
-    response = urllib.request.urlopen(URL)
-
-    data_save_mod = json.loads(response.read().decode(response.info().get_param('charset') or 'utf-8'))
-
-    global user_mods
-
-    user_mods = data_save_mod["chatters"]["moderators"]
-
-    return user_mods
-
-
-def update_viewers():
-
-    threading.Timer(UPDATE, update_viewers)
-
-    response = urllib.request.urlopen(URL)
-
-    data_save = json.loads(response.read().decode(response.info().get_param('charset') or 'utf-8'))
-
-    global user_reg
-
-    user_reg = data_save["chatters"]["viewers"]
-
-    return user_reg
+user_subs = {}
+user_fols = {}
 
 
 # --------------------------------------------- End Settings ------------------------------------------------------- #
@@ -132,6 +111,10 @@ def send_pong(msg):
 
 def send_message(chan, msg):
     con.send(bytes('PRIVMSG %s :%s\r\n' % (chan, msg), 'UTF-8'))
+
+
+def whisper(user, msg):
+    send_message(CHAN, ("/w " + user + " " + msg))
 
 
 def send_nick(nick):
@@ -148,6 +131,8 @@ def join_channel(chan):
 
 def part_channel(chan):
     con.send(bytes('PART %s\r\n' % chan, 'UTF-8'))
+
+
 # --------------------------------------------- End Functions ------------------------------------------------------ #
 
 
@@ -175,8 +160,6 @@ def get_message(msg):
 
     # ---- Commands ---- #
 
-BOT_ENABLED = 0
-
 
 # Begin Code
 def parse_message(msg):
@@ -196,8 +179,7 @@ def parse_message(msg):
                 if sender in user_mods:
                     command_null()
                 else:
-                    command_timeout_auto_1(sender)
-                    send_message(CHAN, "We can hear you just fine " + sender)
+                    send_message(CHAN, "We can hear you just fine " + sender + ".")
 
             options = {}
             options_3 = {}
@@ -206,16 +188,16 @@ def parse_message(msg):
             options_mod_4 = {}
             options_broad = {}
 
-            if sender is not 'ded':
+            if sender is not '':
 
                 options = {
 
                     '!test': command_test,
-                    '!asdf': command_asdf,
                     '!uptime': command_uptime,
                     '!time': command_time,
                     '!help': command_help,
                     '!stats': command_stats,
+                    '!coin': command_null,
                     '!quote': random_quote,
                     '!run': command_run,
 
@@ -240,7 +222,7 @@ def parse_message(msg):
                 }
 
                 options_broad = {
-                    '!off': command_nowhere
+                    '!off': command_null
                 }
 
             if sender in user_mods or sender in BROADCASTER:
@@ -258,7 +240,10 @@ def parse_message(msg):
                     '!admin': command_admin,
                     '!runtime': command_runtime,
                     '!ping': command_pong,
-                    '!update': viewers_update_command,
+                    '!update': update_command,
+                    '!p': command_play_pause,
+                    '!pn': command_play_next,
+                    '!pp': command_play_pre,
 
                 }
 
@@ -273,7 +258,7 @@ def parse_message(msg):
 
                 options_broad = {
 
-                    # Commands only given to BroadCaster(s) from BROADCASTER VARIABLE
+                    # Commands only given to BroadCaster from BROADCASTER VARIABLE
                     '!off': command_off,
                     '!broad': command_start_all,
                     '!conn': conntest,
@@ -282,17 +267,28 @@ def parse_message(msg):
 
             # Ignore Me
             if msg[0] in options:
-                options[msg[0]]()
-
-            elif msg[0] in options_mod:
-                options_mod[msg[0]]()
+                try:
+                    options[msg[0]]()
+                except KeyError:
+                    print("-- SYSTEM: KeyError?")
+            if msg[0] in options_mod:
+                try:
+                    options_mod[msg[0]]()
+                except KeyError:
+                    print("-- SYSTEM: KeyError?")
+            if msg[0] in options_broad:
+                try:
+                    options_broad[msg[0]]()
+                except KeyError:
+                    print("-- SYSTEM: KeyError?")
+            # Placeholder
 
             elif msg[0] in options_mod_1:
                 try:
                     options_mod_1[msg[0]](msg[1:50])
                 except KeyError:
-                    # Key is not present
-                    send_message(CHAN, 'One parameter is required.')
+                    # Argument is not present
+                    send_message(CHAN, 'KeyError: One parameter is required.')
                     pass
 
             elif msg[0] in options_3:
@@ -310,12 +306,10 @@ def parse_message(msg):
 
             elif msg[0] in options_mod_4:
                 try:
-
                     if '' in msg[1] and len(msg[1]) == 1:
 
                         send_message(CHAN, "Error, QUANTITY not filled. !coin <cmd> <quantity> <name>. Or use two-digits.")
                         options_mod_4[msg[0]]('help', '01', '01')
-
                     try:
                         if msg[2] == '':
                             send_message(CHAN, "Need Amount. !coin <cmd> <amount> <name>")
@@ -328,29 +322,87 @@ def parse_message(msg):
                             except IndexError:
                                 options_mod_4[msg[0]]('help', '01', '01')
                                 pass
-
                     except IndexError:
                         options_mod_4[msg[0]]('help', '01', '01')
                         pass
-
                 except KeyError:
                     # Key is not present
                     send_message(CHAN, sender + ', three parameters are required. !coin <cmd> <quantity> <name>')
                     pass
 
-            elif msg[0] in options_broad:
-                options_broad[msg[0]]()
-
 # --------------------------------------------- End Helper Functions ----------------------------------------------- #
+
+# -------------------------------------------------- Start ctypes -------------------------------------------------- #
+
+SendInput = ctypes.windll.user32.SendInput
+
+# C structure redefinitions
+PUL = ctypes.POINTER(ctypes.c_ulong)
+
+
+class KeyBdInput(ctypes.Structure):
+    _fields_ = [("wVk", ctypes.c_ushort),
+                ("wScan", ctypes.c_ushort),
+                ("dwFlags", ctypes.c_ulong),
+                ("time", ctypes.c_ulong),
+                ("dwExtraInfo", PUL)]
+
+
+class HardwareInput(ctypes.Structure):
+    _fields_ = [("uMsg", ctypes.c_ulong),
+                ("wParamL", ctypes.c_short),
+                ("wParamH", ctypes.c_ushort)]
+
+
+class MouseInput(ctypes.Structure):
+    _fields_ = [("dx", ctypes.c_long),
+                ("dy", ctypes.c_long),
+                ("mouseData", ctypes.c_ulong),
+                ("dwFlags", ctypes.c_ulong),
+                ("time", ctypes.c_ulong),
+                ("dwExtraInfo", PUL)]
+
+
+class InputI(ctypes.Union):
+    _fields_ = [("ki", KeyBdInput),
+                ("mi", MouseInput),
+                ("hi", HardwareInput)]
+
+
+class Input(ctypes.Structure):
+    _fields_ = [("type", ctypes.c_ulong),
+                ("ii", InputI)]
+
+
+# Actual Functions
+def press_key(key_code):
+
+    extra = ctypes.c_ulong(0)
+    ii_ = InputI()
+    ii_.ki = KeyBdInput(key_code, 0x48, 0, 0, ctypes.pointer(extra))
+    x = Input(ctypes.c_ulong(1), ii_)
+    SendInput(1, ctypes.pointer(x), ctypes.sizeof(x))
+
+
+def release_key(key_code):
+
+    extra = ctypes.c_ulong(0)
+    ii_ = InputI()
+    ii_.ki = KeyBdInput(key_code, 0x48, 0x0002, 0, ctypes.pointer(extra))
+    x = Input(ctypes.c_ulong(1), ii_)
+    SendInput(1, ctypes.pointer(x), ctypes.sizeof(x))
+
+# --------------------------------------------------- End ctypes --------------------------------------------------- #
 
 # --------------------------------------------- Start Command Functions -------------------------------------------- #
 
 
+# -------------- #
 # ---- User ---- #
-
+# -------------- #
 def command_nowhere():
     if sender not in user_mods:
-        print(sender + " tried to use a banned command.")
+        print(sender + " has made on offense.")
 
     return sql_timeout(sender)
 
@@ -365,13 +417,13 @@ def command_nowhere_auto(name):
 def command_null():
     a = 0
     a += 1
+    return a
 
 
 def command_help():
+    send_message(CHAN, 'There is !help, !ping, !uptime, !time, !stats, !run, !coin, and !test.')
     if sender in user_mods:
-        send_message(CHAN, 'There is !help, !coin, !ping, !asdf, !uptime, !time, !stats, !runset, !test, !on, !admin, !runtime, !ping, !addquote, and !update')
-    else:
-        send_message(CHAN, 'There is !help, !ping, !asdf, !uptime, !time, !stats, !run, !coin, and !test')
+        send_message(CHAN, 'Mod: !runset, !on, !admin, !runtime, !ping, !addquote, !p(n/p), and !update.')
 
 
 def command_nonadmin_off():
@@ -392,10 +444,6 @@ def command_uptime():
 def command_time():
     now = datetime.datetime.now()
     send_message(CHAN, str(now)[0:19] + " " + TIMEZONE)
-
-
-def command_asdf():
-    send_message(CHAN, 'Master Blasters!')
 
 
 def command_test():
@@ -424,7 +472,8 @@ def command_purchase(item, quantity):
     if CURRENCY_ENABLED == 1:
 
         if item == 'timeout':
-            for timeout in c.execute("SELECT timeout FROM tableOut WHERE name LIKE ?", [name]):
+            item_buy = 'timeout'
+            for timeout in c.execute("SELECT ? FROM tableOut WHERE name LIKE ?", [item_buy, name]):
                 timeouts = timeout[0]
                 if timeouts > 0:
                     for stats in c.execute("SELECT currency FROM tableOut WHERE name LIKE ?", [name]):
@@ -433,7 +482,7 @@ def command_purchase(item, quantity):
                             c.execute("UPDATE tableOut SET timeout = timeout - ? WHERE name = ?;", [quantity[0], name])
                             conn.commit()
                             for stats_new in c.execute("SELECT currency FROM tableOut WHERE name LIKE ?", [name]):
-                                for timeout_new in c.execute("SELECT timeout FROM tableOut WHERE name LIKE ?", [name]):
+                                for timeout_new in c.execute("SELECT ? FROM tableOut WHERE name LIKE ?", [item_buy, name]):
                                     send_message(CHAN, "{}, you have purchased a warning removed. You now have ${} and {} timeouts".format(name, stats_new[0], timeout_new[0]))
                                     break
                                 break
@@ -460,7 +509,6 @@ def command_coin(cmd, amount, name):
     amount_0 = amount
 
     if CURRENCY_ENABLED == 1:
-        if sender in user_mods:
             add = {'add', 'plus', '+'}
             sub = {'sub', 'subtract', '-'}
 
@@ -484,9 +532,6 @@ def command_coin(cmd, amount, name):
                 conn.commit()
                 for value in c.execute("SELECT currency FROM tableOut WHERE name LIKE ?", [name_0, ]):
                     send_message(CHAN, name_0 + " now has $" + str(value[0]) + ".")
-        else:
-            for value in c.execute("SELECT currency FROM tableOut WHERE name like ?", name_0):
-                send_message(CHAN, name_0 + ", you have $" + value + ".")
 
     else:
         send_message(CHAN, "Currency Disabled.")
@@ -496,16 +541,18 @@ def command_coin(cmd, amount, name):
 
 def command_quote(number):
     try:
-
         the_file_name = 'quotes.txt'
         line_quote = linecache.getline(the_file_name, number)
-
         send_message(CHAN, line_quote)
 
     except IndexError:
-        send_message(CHAN, "Error: Cannot choose from an empty sequence.")
-        print("-- ERROR: IndexError, Cannot choose from an empty sequence.")
+        send_message(CHAN, "Quote IndexError: Cannot choose from an empty sequence. Add quotes.")
+        print("-- ERROR: IndexError, Cannot choose from an empty sequence. Add quotes.")
         print(number)
+        pass
+    except KeyError:
+        random_quote()
+        pass
 
 
 def random_quote():
@@ -516,7 +563,6 @@ def random_quote():
         for lines in file_open:
             if lines.strip():
                 line_count += 1
-
     number = random.randint(0, line_count+1)
 
     if number % 2 == 0:
@@ -537,7 +583,8 @@ def frankerz():
 # ---- Mod ---- #
 # ------------- #
 def command_on():
-    send_message(CHAN, "ZamaticaBat is online and running properly.")  # optional
+    send_message(CHAN, "I am online and sending messages.")  # optional
+    # send_message(CHAN, "Test on Whispering.")
 
 
 def command_admin():
@@ -567,6 +614,81 @@ def command_run_update(run_update):
     return run
 
 
+# Viewers
+
+def threading_timer():
+    threading.Timer(UPDATE, threading_timer)
+
+    update_viewers_call()
+    update_viewers_call_mod()
+
+    global user_mods, user_reg
+
+    user_mods = update_viewers_mods()
+    user_reg = update_viewers()
+
+    update = viewers()
+    update_all(update)
+
+    update_user_sf()
+
+    send_message(CHAN, "Viewers Updated.")
+    return user_reg, user_mods
+
+
+# ViewersUpdate
+def update_command():
+    update_viewers()
+    # Saves data_save
+    update = viewers()
+    # passes data_save to reward_viewers
+    update_all(update)
+    update_user_sf()
+
+
+def update_user_sf():
+    global user_subs, user_fols
+    conn = sqlite3.connect(DATABASE)
+    c = conn.cursor()
+    if SUBS == 1:
+        user_subs = list(map(lambda x: x[0], c.execute("SELECT name from tableOut WHERE sub = 1")))
+
+    user_fols = list(map(lambda x: x[0], c.execute("SELECT name from tableOut WHERE fol = 1")))
+
+    return user_subs, user_fols
+
+
+# - Play Commands - BETA - Volume Set in Dev
+def command_play_pause():
+    if MUSIC_ENABLED == 1:
+        try:
+            press_key(0xB3)
+            release_key(0xB3)
+        except NameError:
+            send_message(CHAN, "NameError on !p")
+            pass
+
+
+def command_play_next():
+    if MUSIC_ENABLED == 1:
+        try:
+            press_key(0xB0)
+            release_key(0xB0)
+        except NameError:
+            send_message(CHAN, "NameError on !pn")
+            pass
+
+
+def command_play_pre():
+    if MUSIC_ENABLED == 1:
+        try:
+            press_key(0xB1)
+            release_key(0xB1)
+        except NameError:
+            send_message(CHAN, "NameError on !pp")
+            pass
+
+
 # --------------------- #
 # ---- BROADCASTER ---- #
 # --------------------- #
@@ -575,25 +697,45 @@ def command_off():
     sys.exit()
 
 
+def command_off_gui():
+    sys.exit()
+
 # ---------------- #
 # ---- System ---- #
 # ---------------- #
 
+
 # ---- Background Systems ---- #
 def command_start_all():
-    title()
-    printout()
+
+    if MEDIA_ENABLED == 1:
+        title()
+        print(TITLE)
+        print("-- SYSTEM: Broadcast Enabled.")
+
+    if BROADCAST_ENABLED == 1:
+        printout()
+        print(BROADCAST)
+        print("-- SYSTEM: Broadcast Enabled.")
+
     if CURRENCY_ENABLED == 1:
         currency_reward_timer()
+        print("-- SYSTEM: Currency Enabled.")
+
+    if MUSIC_ENABLED == 1:
+        print("-- SYSTEM: Music Enabled.")
+
+    if MUSIC_ENABLED and BROADCAST_ENABLED and CURRENCY_ENABLED and MEDIA_ENABLED == 0:
+        print("-- SYSTEM: No Extra Features Loaded.")
 
 
 def title():
-    threading.Timer(TITLE_SHOWN, title).start()
+    threading.Timer(TITLE_SHOWN, title)
     send_message(CHAN, TITLE)
 
 
 def printout():
-    threading.Timer(BROADCAST_SHOWN, BROADCAST).start()
+    threading.Timer(BROADCAST_SHOWN, BROADCAST)
     send_message(CHAN, SOCIAL_MEDIA)
 
 
@@ -605,13 +747,13 @@ def command_timeout_auto_1(name):
 
 # ---- SQL Based ---- #
 def command_timeout_auto(name):
-
     if name not in user_mods:
         send_message(CHAN, '/timeout ' + name + ' ' + str(TIMEOUT_TIME))
-        send_message(CHAN, name + ' has been timed out for 45 second(s).')  # optional
+        # for users in user_mods:
+        # whisper(users, name + ' has been timed out for 45 second(s).')  # optional
         print("-- OFFENSE: " + name + " has been timed out for 30 second(s).")
     else:
-        send_message(CHAN, name + " cant not be timed out.")  # optional
+        print("-- SYSTEM: " + name + " cant not be timed out.")  # optional
 
 
 def conntest():
@@ -624,107 +766,31 @@ def conntest():
         print("")
 
 
-# Viewers
-def viewers_update_command():
-    # Saves data_save
-    update = viewers()
-    # passes data_save to reward_viewers
-    reward_viewers(update)
-
-
-def viewers():
-    response = urllib.request.urlopen(URL)
-    data_save = json.loads(response.read().decode(response.info().get_param('charset') or 'utf-8'))
-    return data_save
-
-
-def reward_viewers(data_loaded):
-
-    num = 0
-    num_mods = 0
-
-    users = data_loaded["chatters"]["viewers"]
-    mods = data_loaded["chatters"]["moderators"]
-
-    conn = sqlite3.connect(DATABASE)
-
-    c = conn.cursor()
-
-    for name in users:
-        c.execute("INSERT OR IGNORE INTO tableOut (name) VALUES (?);", [name])
-        num += 1
-    for name_mods in mods:
-        c.execute("INSERT OR IGNORE INTO tableOut (name) VALUES (?);", [name_mods])
-        num_mods += 1
-
-    print("-- DATABASE: Viewer list updated. There are " + str(num) + " viewing. And " + str(num_mods) + " modding things.")
-
-    conn.commit()
-
-    conn.close()
-
-
-def viewer_update():
-    threading.Timer(UPDATE, viewer_update)
-    # Saves data_save
-    update = viewers()
-    # passes data_save to reward_viewers
-    reward_viewers(update)
-
-
-# Currency - BETA
+# --------------- #
+# Currency System #
+# --------------- #
 def currency_reward_timer():
-
     threading.Timer(UPDATE_CURRENCY, currency_reward_timer)
-
     update = viewers()
-
-    reward_viewers(update)
+    update_all(update)
 
 
 def command_stats():
 
     viewer_update()
-
     name = sender
 
     conn = sqlite3.connect(DATABASE)
-    print("-- DATABASE: Connection Opened.")
-
     c = conn.cursor()
 
     for stats in c.execute("SELECT currency FROM tableOut WHERE name LIKE ?", [name]):
         for offenses in c.execute("SELECT timeout FROM tableOut WHERE name LIKE ?", [name]):
-
             if CURRENCY_ENABLED == 0:
                 send_message(CHAN, name + ", " + str(offenses[0]) + " offenses.")
             if CURRENCY_ENABLED == 1:
                 send_message(CHAN, name + ", you have $" + str(stats[0]) + " and " + str(offenses[0]) + " offenses")
-
-            print("-- USERS: " + name + " has requested stats.")
-
             break
         break
-
-    conn.close()
-    print("-- DATABASE: Connection Closed.")
-
-
-# SQL for Currency
-def currency_reward(data_loaded):
-
-    users = data_loaded["chatters"]["viewers"]
-
-    conn = sqlite3.connect(DATABASE)
-
-    c = conn.cursor()
-
-    for name in users:
-        c.execute("UPDATE tableOut SET currency = currency + ? WHERE name = ?;", [CURRENCY_VALUE, name])
-
-    print("-- DATABASE: Currency list for viewer list updated.")
-
-    conn.commit()
 
     conn.close()
 
@@ -736,7 +802,6 @@ def sql_timeout(name):
     conn = sqlite3.connect(DATABASE)
 
     c = conn.cursor()
-    print("-- DATABASE: Connected to Database.")
 
     # Insert a row of data
     c.execute("INSERT OR IGNORE INTO tableOut (name,timeout) VALUES (?,0);", [name])
@@ -748,7 +813,7 @@ def sql_timeout(name):
 
         print("-- OFFENSE: " + name + " = " + str(out) + "/3")
 
-        send_message(CHAN, sender + ", tried to use a banned command. " + str(out) + "/3")
+        send_message(CHAN, sender + ", warning. " + str(out) + "/3")
 
         if out >= TIMEOUT_LIMIT:
 
@@ -767,13 +832,11 @@ def sql_timeout(name):
 
     else:
         out = 0  # not found
-        nameout = ''  # nothing
-        if nameout == '':
+        name_out = ''  # nothing
+        if name_out == '':
             out += 0
-    # Saves Data
-    print("-- DATABASE: Database Saved and Closed.")
-    conn.commit()
 
+    conn.commit()
     conn.close()
 
 
@@ -789,6 +852,9 @@ send_nick(NICK)
 join_channel(CHAN)
 
 data = ""
+BOT_ENABLED = 1
+
+send_message(CHAN, "/TWITCHCLIENT 3")
 
 
 def connect_no_mod():
@@ -796,71 +862,53 @@ def connect_no_mod():
     global start
     global user_mods
     global NICK
+    global BOT_ENABLED
 
     update_viewers_mods()
+    update_user_sf()
 
-    if NICK in user_mods:
-
+    if NICK in user_mods or BOT_ENABLED == 1:
         update_viewers_mods()
         update_viewers()
 
-        send_message(CHAN, "Connected to " + CHAN[1:100] + ". Online and ready.")
+        print("-- BOT: Connected to " + USER + ". Online and ready. Version 1.3")
 
-        print("-- BOT: Connected to " + CHAN[1:100] + ". Online and ready. Version 1.3")
-        if MEDIA_SHOWN == 1:
-            printout()
-
-            title()
-
+        command_start_all()
         viewers()
         update_viewers_mods()
         update_viewers()
 
         start = datetime.datetime.now()
-
-        global BOT_ENABLED
-
         BOT_ENABLED = 1
-
         return BOT_ENABLED
-
     else:
-
         global connect_bot
-
-        t = threading.Timer(5.0, connect_no_mod)
-
+        t = threading.Timer(10.0, connect_no_mod)
         connect_bot += 1
-
-        print("[" + str(connect_bot) + "] " + "Trying to connect...")
-
+        print("-- BOT: [" + str(connect_bot) + "] " + "Trying to connect...")
         t.start()
 
 
 def startup():
-    print("Connecting to " + CHAN[1:10] + "...")
+
+    print("-- BOT: Connecting to " + USER + "...")
 
     global start
     global user_mods
     global NICK
-
     update_viewers_mods()
-
     if NICK in user_mods:
-
         connect_no_mod()
-
     else:
         update_viewers_mods()
-
         print("-- WARNING: Not found in user mods. Waiting...")
-
         connect_no_mod()
 
-startup()
 
+startup()
 while True:
     try:
+
         data = data+con.recv(1024).decode('UTF-8')
         data_split = re.split(r"[~\r\n]+", data)
         data = data_split.pop()
@@ -870,27 +918,42 @@ while True:
             line = str.split(line)
 
             if len(line) >= 1:
-                if line[0] == 'PING':
-                    send_pong(line[1])
+                try:
 
-                if line[1] == 'PRIVMSG':
-                    sender = get_sender(line[0])
-                    message = get_message(line)
-                    parse_message(message)
+                    if line[0] == 'PING':
+                        send_pong(line[1])
 
-                    print(sender + ": " + message)
+                    if line[1] == 'PRIVMSG':
+                        sender = get_sender(line[0])
+                        message = get_message(line)
+                        parse_message(message)
 
-    except socket.error:
-        print("-- WARNING: Socket died")
-        string_start = input("-- SYSTEM: Restart? Y/N")
-        yes = {'yes', 'YES', 'y', 'Y'}
-        no = {'no', 'NO', 'n', 'N'}
+                        if sender in user_mods:
+                            print("[MOD]" + sender + ": " + message)
+                        elif SUBS == 0 and (sender in user_fols) and (sender not in user_mods):
+                            print("[FOL]" + sender + ": " + message)
+                        elif SUBS == 1 and sender in user_subs and sender not in user_mods:
+                            print("[SUB]" + sender + ": " + message)
+                        else:
+                            print(sender + ": " + message)
+
+                except IndexError:
+                    # Catches "~" in chat to not error
+                    pass
+
+    except socket.error or socket.timeout:
+        print("-- WARNING[IRC]: Socket died")
+
+    except socket.timeout:
+        print("-- WARNING[IRC]: Socket timeout")
+
+    except socket.timeout or socket.error:
+        string_start = input("-- SYSTEM: Attempt a Restart? Y/N")
+        yes = {'yes', 'YES', 'y', 'Y', '+'}
+        no = {'no', 'NO', 'n', 'N', '-'}
         if string_start in yes:
-            print("-- BOT: Restarting...")
+            print("-- BOT: Attempting Restart...")
             startup()
         elif string_start in no:
             print("-- SYSTEM: Exiting...")
             sys.exit()
-
-    except socket.timeout:
-        print("-- WARNING: Socket timeout")

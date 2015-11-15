@@ -2,18 +2,45 @@
   "connection": {
     "HOST": "irc.twitch.tv",
     "PORT": "6667",
-    "CHAN": "# Your Channel Here LOWERCASE",
-    "NICK": "Bot Name Here",
-    "PASS": "Go here: http://twitchapps.com/tmi/"
+    "CHAN": "# Your Twitch Name, LOWERCASE, Leave the #",
+    "NICK": "Bot Name",
+    "PASS": "Log onto bot on twitch, go here http://twitchapps.com/tmi/ , copy paste the code (with the 'oauth:')"
   },
 
     "variables": {
-      "CHATTERS": "https://tmi.twitch.tv/group/user/YOUR CHANNEL HERE LOWERCASE/chatters",
 
-      "TIMEZONE": "CST",
+      "BROADCASTER": "Your name here, lowercase",
+
+      "CHATTERS": "https://tmi.twitch.tv/group/user/----Your Name Here, Lowercase,/chatters",
+
+      "TIMEZONE": "CST - Your Time Zone",
+
+      "SUBS": "0",
+      "SUB_OAUTH": "https://www.youtube.com/watch?v=aQ66m7S2L0c - Very Useful Video",
+
+      "BANNED_WORDS": [
+          "blurryface",
+          "apollo_oz",
+          "nigger",
+          "faggot",
+          "neo-nazi"
+        ],
+
+      "TIMEOUT_TIME": "45 - How Long People are timed out for",
+      "TIMEOUT_LIMIT": "3 - How Many Offense.",
+
+      "UPDATE":"60.0 - Update for viewers, in seconds",
+
+      "OPTIONAL": "1 on/0 off (not for this value)",
 
 
-      "BROADCAST_ENABLED":"0",
+      "MUSIC_ENABLED": "0",
+	  
+	  "SNIP": "0",
+	  "SNIP_PATH": "Path to Snip.txt  i.e.(C:/Snip/Snip.txt)",
+
+
+      "BROADCAST_ENABLED": "0",
 
       "BROADCAST": "",
       "BROADCAST_SHOWN": "60.0",
@@ -22,32 +49,23 @@
       "MEDIA_ENABLED": "0",
 
       "TITLE": "None",
-      "TITLE_SHOWN": "75.0",
+      "TITLE_SHOWN": "75.0 - Seconds before TITLE",
 
       "SOCIAL_MEDIA": "None",
-      "MEDIA_SHOWN": "180.0",
+      "MEDIA_SHOWN": "180.0 - Seconds before SOCIAL_MEDIA",
 
 
-      "TIMEOUT_TIME": "45",
-      "TIMEOUT_LIMIT": "3",
+      "CURRENCY_ENABLED": "0",
 
-      "UPDATE":"60.0",
+      "CURRENCY_MINUS": "20 - Deduction for Offense",
 
-      "BANNED_WORDS": [
-          "blurryface",
-          "apollo_oz"
-        ],
+      "UPDATE_CURRENCY": "3600 - Time till give currency",
+
+      "CURRENCY_VALUE": "15 - How much added in Update time",
 
 
-      "BROADCASTER": " YOUR NAME",
 
-
-      "CURRENCY_ENABLED": "1",
-
-      "CURRENCY_MINUS": "20",
-
-      "UPDATE_CURRENCY": "3600",
-
-      "CURRENCY_VALUE": "15"
+      "Beta Stuff Leave": "If it is not a number, it will error",
+      "WINDOW_SIZE": "400"
   }
 }

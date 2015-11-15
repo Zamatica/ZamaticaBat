@@ -1,1 +1,3 @@
-__author__ = 'Force3'
+__author__ = 'Zamatica'
+import os
+os.system("zamaticabat_base.py 1")
