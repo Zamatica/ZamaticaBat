@@ -4,12 +4,12 @@ ZamaticaBat
 -
 
 ### Table of Contents
- - [Dependencies](#Dependencies)
- - [Optional](#Optional)
- - [Streaming](#Streaming)
- - [Variables](#Variables)
- - [Full Commands List](#Full-Commands-List)
- - [Changelog](#Changelog)
+ - [Dependencies](#dependencies)
+ - [Optional](#optional)
+ - [Streaming](#streaming)
+ - [Variables](#variables)
+ - [Full Commands List](#full-commands-list)
+ - [Changelog](#changelog)
  - [To Do](#to-do)
 
 ##### Author: Zamatica
