@@ -9,10 +9,6 @@
 
     "variables": {
 
-      "BROADCASTER": "Your name here, lowercase",
-
-      "CHATTERS": "https://tmi.twitch.tv/group/user/----Your Name Here, Lowercase,/chatters",
-
       "TIMEZONE": "CST - Your Time Zone",
 
       "SUBS": "0",
@@ -35,9 +31,6 @@
 
 
       "MUSIC_ENABLED": "0",
-	  
-	  "SNIP": "0",
-	  "SNIP_PATH": "Path to Snip.txt  i.e.(C:/Snip/Snip.txt)",
 
 
       "BROADCAST_ENABLED": "0",
@@ -63,9 +56,5 @@
 
       "CURRENCY_VALUE": "15 - How much added in Update time",
 
-
-
-      "Beta Stuff Leave": "If it is not a number, it will error",
-      "WINDOW_SIZE": "400"
   }
 }

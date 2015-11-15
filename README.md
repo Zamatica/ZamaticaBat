@@ -1,121 +1,116 @@
 
 
-
 ZamaticaBat
+-
 
-Author: Zamatica
+### Table of Contents
+ - [Dependencies](#Dependencies)
+ - [Optional](#Optional)
+ - [Streaming](#Streaming)
+ - [Variables](#Variables)
+ - [Full Commands List](#Full-Commands-List)
+ - [Changelog](#Changelog)
+ - [To Do](#to-do)
 
-Release: 1.3.0
+##### Author: Zamatica
+Release: 1.4.0<br>
 Releases: https://github.com/Zamatica/ZamaticaBat/releases
 
-TESTED ON WINDOWS ONLY, SORRY OTHER USERS
+##### Tested on Windows
 
 
-You Need:
+### Dependencies:
 	
-	- [Python 3.x.x](https://www.python.org/downloads/)
+- [Python 3.x.x](https://www.python.org/downloads/)
 
-You May Want for ZamaticaBat:
-
-	- [SQLite3 Browser](http://sqlitebrowser.org/) - Allows you to edit users.db and add data
-	- Guide to Editing JSON files [here](http://imgur.com/a/Bz4N0)
-	- Running your JSON file through [JSONLint](http://jsonlint.com/) - Checks it
+### Optional:
+- [SQLite3 Browser](http://sqlitebrowser.org/) - Allows you to edit users.db and add data
+- Guide to Editing JSON files [here](http://imgur.com/a/Bz4N0)
+- Running your JSON file through [JSONLint](http://jsonlint.com/) - Checks it
 	
-Streaming:
-	- [Snip](https://github.com/dlrudie/Snip/releases/tag/v5.0.5) - outputs a text that shows Artist and Songs
-	     = Refer here for NowPlaying Guide: https://obsproject.com/forum/threads/now-playing-music-for-spotify-itunes-winamp-on-stream.925/
-	- If you have subscribers and want your bot to see them you need to connect your twitch account with the bot
-		 = if you can do that, great! If not watch this: https://www.youtube.com/watch?v=aQ66m7S2L0c
-		 
+### Streaming:
+- [Snip](https://github.com/dlrudie/Snip/releases/tag/v5.0.5) - outputs a text that shows Artist and Songs
+ -  Refer here for NowPlaying Guide: https://obsproject.com/forum/threads/now-playing-music-for-spotify-itunes-winamp-on-stream.925/
 
-MAKE YOUR BOT A MOD BEFORE TRYING TO CONNECT, OTHERWISE IT WILL NOT CONNECT.
-	
-IT WILL MOST LIKELY SAY, UNABLED TO CONNECT GIVE IT TIME.
+- If you have subscribers and want your bot to see them you need to connect your twitch account with the bot
+ - if you can do that, great! If not watch this: https://www.youtube.com/watch?v=aQ66m7S2L0c
 	
 	
-Variables needed to be changed in the JSON file (open with any text edior)
+### Variables:
 
-	for connections: <---------------------------------------------- IMPORTANT
-		CHAN
-		NICK
-		PASS ( have to use a oAuth Token, go here: http://twitchapps.com/tmi/ )
 
-	for variables:
-		TIMEZONE
-		ASDF
-		URL ( the ----USERNAME---- part ) <------------------------- IMPORTANT
+- Connections
+ - CHAN
+ - NICK
+ - PASS, You have to use [oAuth](http://www.twitchapps.com/tmi/)
 
-		BANNED_WORDS
+- Options:
+ - TIMEZONE
+ - BANNED_WORDS
+ - Music
+ - Media ("MEDIA_ENABLED" : "1") -- Title, Social Media, and Shown
+ - Broadcast ("BROADCAST_ENABLED" : "1") -- Broadcast and Shown
+ - Currency ("CURRENCY_ENABLED" : "1") -- Minus, Update, and Value
+
+### Full Commands List:
+
+- All:
+ - !help - you get the idea
+ - !asdf - prints a quote of something
+ - !time - displays your pc's time
+	= Varible: TIMEZONE, set to your timezone
+ - !uptime - Uptime of the stream (from when bot opened and connected)
+ - !stats - displays stats of the sender
+ - !quote - displays a quote from quotes.txt
+ - !coin - displays current currency (if not mod/broadcaster)
+  - !run - shows the runs(?)
 		
-		BROADCASTER <----------------------------------------------- IMPORTANT
-		USER_MODS   <----------------------------------------------- IMPORTANT
+- Mods:
+ - !on - test to see if bot running
+ - !admin - shows you are mod
+ - !runtime - test bot runtime (runs equation) from chat
+ - !pong - shows connection lag
+ - !conn - test connection to database
+ - !quoteadd - saved in quotes.txt
+ - !coin - add/sub/set currency
+ - !update - updates viewers
+ - !runset - sets the display to !run
 		
-		if media is enabled
-			TITLE
-			SOCIAL_MEDIA
+- Broadcaster/Editor:
+ - !off - turns bot off
+ - !broad - turns on broadcast if not on or will run them
 
-		if broadcast is enabled
-			BROADCAST
 
-Full Commands List:
+### Changelog:
 
-	All:
-		!help - you get the idea
-		!asdf - prints a quote of something
-		!time - displays your pc's time
-			= Varible: TIMEZONE, set to your timezone
-		!uptime - Uptime of the stream (from when bot opened and connected)
-		!stats - displays stats of the sender
-		!quote - displays a quote from quotes.txt
-		!coin - displays current currency (if not mod/broadcaster)
-		!run - shows the runs(?)
+- 1.4:
+ - Reworked the Code to be more organized
+ - Added Follower/Subscriber Data to Database
+
+- 1.3:
+  - Fixed Quote System to work better
+  - Reworked !coin
+  - Removed mods print in beginning
+  - Added !run/!runset command
+
+- 1.2:
+ - Added Quote System
+ - Variables moved to vars.json
+ - Redid somethings to run better
+ - Added System to ensure channels
+	-- Bot must be a mod before it will do anything
+
+- 1.1.4:
+ - Added Currency System
+ - Added User List
+ - Add More Variables
 		
-	Mods:
-		!on - test to see if bot running
-		!admin - shows you are mod
-		!runtime - test bot runtime (runs equation) from chat
-		!pong - shows connection lag
-		!conn - test connection to database
-		!quoteadd - saved in quotes.txt
-		!coin - add/sub/set currency
-		!update - updates viewers
-		!runset - sets the display to !run
-		
-	Broadcaster/Editor:
-		!off - turns bot off
-		!broad - turns on broadcast if not on or will run them
-
-
-Changelog:
-
-	- 1.4:
-		- Reworked the Code to be more organized
-		- Added Follower/Subscriber Data to Database
-
-	- 1.3:
-		- Fixed Quote System to work better
-		- Reworked !coin
-		- Removed mods print in beginning
-		- Added !run/!runset command
-
-	- 1.2:
-		- Added Quote System
-		- Variables moved to vars.json
-		- Redid somethings to run better
-		- Added System to ensure channels
-			= Bot must be a mod before it will do anything
-
-	- 1.1.4:
-		- Added Currency System
-		- Added User List
-		- Add More Variables
-		
-	- 1.1.3:
-		- Added User Variables
+- 1.1.3:
+ - Added User Variables
 
 		
 		
-To Do:
+### To Do:
 
-	- Maybe Foobar2000/WinAmp/WMP/Spotify Contoller ( no zune )
+ - Maybe Foobar2000/WinAmp/WMP/Spotify Contoller ( no zune )
 
