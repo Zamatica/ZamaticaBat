@@ -53,7 +53,6 @@ def update_all(data_loaded):
     for name_mods in mods:
         c.execute("INSERT OR IGNORE INTO tableOut (name) VALUES (?);", [name_mods])
         num_mods += 1
-    currency_reward(viewers())
     print("-- IRC: Viewer list updated. There are " + str(num) + " viewing. And " + str(num_mods) + " modding things.")
     conn.commit()
     conn.close()
@@ -87,13 +86,10 @@ def sub_update():
         data_subs = json.loads(res_sub)
         ws = []
         s = 0
-        while s < 100000000:
-            try:
-                user_sub = data_subs['follows'][s]['user']['name']
-                ws.append(user_sub)
-                s += 1
-            except IndexError:
-                break
+        while s < len(data_subs['subscriptions']):
+            user_sub = data_subs['subscriptions'][s]['user']['name']
+            ws.append(user_sub)
+            s += 1
         sub_database(ws)
     except urllib.error.HTTPError:
         print("No Sub Program. Set subs to 0.")
@@ -112,15 +108,12 @@ def sub_database(subs):
 def fol_update():
     res_fol = urllib.request.urlopen("https://api.twitch.tv/kraken/channels/" + USER + "/follows").read().decode()
     data_fol = json.loads(res_fol)
+    x = 0
     wt = []
-    t = 0
-    while t < 100000000:
-        try:
-            fol_user = data_fol['follows'][t]['user']['name']
-            wt.append(fol_user)
-            t += 1
-        except IndexError:
-            break
+    while x < len(data_fol['follows']):
+        fol_user = data_fol['follows'][x]['user']['name']
+        wt.append(fol_user)
+        x += 1
     fol_database(wt)
 
 
