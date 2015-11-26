@@ -22,8 +22,7 @@ CURRENCY_VALUE = int(VARS["variables"]["CURRENCY_VALUE"])  # Set value of curren
 
 def update_viewers():
     global user_reg
-    response = urllib.request.urlopen(URL)
-    data_save = json.loads(response.read().decode(response.info().get_param('charset') or 'utf-8'))
+    data_save = viewers_url()
     user_reg = data_save["chatters"]["viewers"]
     if SUBS == 1:
         sub_update()
@@ -35,8 +34,8 @@ def update_viewers():
 def update_viewers_mods():
     response = urllib.request.urlopen(URL)
     data_save_mod = json.loads(response.read().decode(response.info().get_param('charset') or 'utf-8'))
-    user_mods = data_save_mod["chatters"]["moderators"]
-    return user_mods
+    mod_save = data_save_mod["chatters"]["moderators"]
+    return mod_save
 
 
 # Updating Viewer List
@@ -58,7 +57,7 @@ def update_all(data_loaded):
     conn.close()
 
 
-def viewers():
+def viewers_url():
     response = urllib.request.urlopen(URL)
     data_save = json.loads(response.read().decode(response.info().get_param('charset') or 'utf-8'))
     return data_save
@@ -99,6 +98,7 @@ def sub_database(subs):
     conn = sqlite3.connect(DATABASE)
     c = conn.cursor()
     for sub in subs:
+        c.execute("INSERT OR IGNORE INTO tableOut (name) VALUES (?);", [sub])
         c.execute("UPDATE tableOut set sub = 1 WHERE name like ?", [sub])
     conn.commit()
     conn.close()
@@ -114,13 +114,24 @@ def fol_update():
         fol_user = data_fol['follows'][x]['user']['name']
         wt.append(fol_user)
         x += 1
+    global w
+    w = wt
     fol_database(wt)
+    return w
+w = []
+
+
+def send_wt():
+    global w
+    s = w
+    return s
 
 
 def fol_database(fols):
     conn = sqlite3.connect(DATABASE)
     c = conn.cursor()
     for fol in fols:
+        c.execute("INSERT OR IGNORE INTO tableOut (name) VALUES (?);", [fol])
         c.execute("UPDATE tableOut set fol = 1 WHERE name like ?", [fol])
     conn.commit()
     conn.close()
