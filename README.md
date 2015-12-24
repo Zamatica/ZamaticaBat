@@ -79,6 +79,7 @@ Releases: https://github.com/Zamatica/ZamaticaBat/releases
  - !runset - sets the display to !run
  - !check <user> - checks for user in database
  - !add <user> - adds user to database
+ - !p(p, n) - Controls Music all but volume.
 		
 - Broadcaster/Editor:
  - !off - turns bot off
@@ -120,4 +121,4 @@ Releases: https://github.com/Zamatica/ZamaticaBat/releases
 		
 ### To Do:
 
- - Maybe Foobar2000/WinAmp/WMP/Spotify Contoller ( no zune )
+ - Volume Control
