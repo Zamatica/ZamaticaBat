@@ -4,6 +4,8 @@ import sqlite3
 import urllib.request
 import urllib.error
 import json
+from time import sleep
+from sys import exit
 
 DATABASE = 'users.db'
 
@@ -14,28 +16,34 @@ USER = VARS["connection"]["CHAN"][1:100]
 
 URL = "https://tmi.twitch.tv/group/user/" + USER + "/chatters"
 
+FOL = int(VARS["variables"]["FOL"])
 SUBS = int(VARS["variables"]["SUBS"])
 SUB_OAUTH = VARS["variables"]["SUB_OAUTH"]
 
+UPDATE = float(VARS["variables"]["UPDATE"])
+
+CURRENCY_ENABLED = int(VARS["variables"]["CURRENCY_ENABLED"])
 CURRENCY_VALUE = int(VARS["variables"]["CURRENCY_VALUE"])  # Set value of currency, default 15
 
-
-def update_viewers():
-    global user_reg
-    data_save = viewers_url()
-    user_reg = data_save["chatters"]["viewers"]
-    if SUBS == 1:
-        sub_update()
-    fol_update()
-    return user_reg
+x = 0
 
 
-# Moderators
-def update_viewers_mods():
-    response = urllib.request.urlopen(URL)
-    data_save_mod = json.loads(response.read().decode(response.info().get_param('charset') or 'utf-8'))
-    mod_save = data_save_mod["chatters"]["moderators"]
-    return mod_save
+def update_timer():
+    global UPDATE, x
+    while True:
+        x += 1
+        if x == UPDATE:
+            update_start()
+            return_x(0)
+        elif x < UPDATE:
+            return_x(x)
+            sleep(1)
+
+
+def return_x(save):
+    global x
+    x = save
+    return x
 
 
 # Updating Viewer List
@@ -48,19 +56,38 @@ def update_all(data_loaded):
     c = conn.cursor()
     for name in users:
         c.execute("INSERT OR IGNORE INTO tableOut (name) VALUES (?);", [name])
+        c.execute("UPDATE tableOut SET mod = 0 WHERE name = ?;", [name])
         num += 1
     for name_mods in mods:
         c.execute("INSERT OR IGNORE INTO tableOut (name) VALUES (?);", [name_mods])
         num_mods += 1
-    print("-- IRC: Viewer list updated. There are " + str(num) + " viewing. And " + str(num_mods) + " modding things.")
+    print("-- IRC: There are " + str(len(users)) + " viewing and " + str(len(mods)) + " moderators currently watching.")
     conn.commit()
     conn.close()
+    if SUBS == 1:
+        sub_update()
+    elif SUBS != 1 and FOL == 1:
+        fol_update()
+    elif CURRENCY_ENABLED == 1:
+        currency_reward(data_loaded)
 
 
-def viewers_url():
+def update_start():
     response = urllib.request.urlopen(URL)
     data_save = json.loads(response.read().decode(response.info().get_param('charset') or 'utf-8'))
-    return data_save
+    return update_all(data_save)
+
+
+def mod_update():
+    mod_data = urllib.request.urlopen(URL)
+    mod_list = json.loads(mod_data.read().decode(mod_data.info().get_param('charset') or 'utf-8'))
+    return mod_list["chatters"]["moderators"]
+
+
+def viewer_update():
+    viewer_data = urllib.request.urlopen(URL)
+    viewer_list = json.loads(viewer_data.read().decode(viewer_data.info().get_param('charset') or 'utf-8'))
+    return viewer_list["chatters"]["viewers"]
 
 
 # --------------------------------------------------------------------------------------------------------------------------------------------- #
@@ -92,6 +119,7 @@ def sub_update():
         sub_database(ws)
     except urllib.error.HTTPError:
         print("No Sub Program. Set subs to 0.")
+        exit()
 
 
 def sub_database(subs):
@@ -108,23 +136,13 @@ def sub_database(subs):
 def fol_update():
     res_fol = urllib.request.urlopen("https://api.twitch.tv/kraken/channels/" + USER + "/follows").read().decode()
     data_fol = json.loads(res_fol)
-    x = 0
+    z = 0
     wt = []
-    while x < len(data_fol['follows']):
-        fol_user = data_fol['follows'][x]['user']['name']
+    while z < len(data_fol['follows']):
+        fol_user = data_fol['follows'][z]['user']['name']
         wt.append(fol_user)
-        x += 1
-    global w
-    w = wt
+        z += 1
     fol_database(wt)
-    return w
-w = []
-
-
-def send_wt():
-    global w
-    s = w
-    return s
 
 
 def fol_database(fols):

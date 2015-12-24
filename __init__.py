@@ -1,3 +1,6 @@
 __author__ = 'Zamatica'
-import os
-os.system("zamaticabat_base.py 1")
+from time import sleep
+from sys import exit
+print("Run run.py -- not this")
+sleep(5)
+exit()

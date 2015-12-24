@@ -1,60 +1,43 @@
 {
   "connection": {
+    "CHAN": "",
     "HOST": "irc.twitch.tv",
-    "PORT": "6667",
-    "CHAN": "# Your Twitch Name, LOWERCASE, Leave the #",
-    "NICK": "Bot Name",
-    "PASS": "Log onto bot on twitch, go here http://twitchapps.com/tmi/ , copy paste the code (with the 'oauth:')"
+    "NICK": "",
+    "PASS": "",
+    "PORT": "6667"
   },
-
-    "variables": {
-
-      "TIMEZONE": "CST - Your Time Zone",
-
-      "SUBS": "0",
-      "SUB_OAUTH": "https://www.youtube.com/watch?v=aQ66m7S2L0c - Very Useful Video",
-
-      "BANNED_WORDS": [
-          "blurryface",
-          "apollo_oz",
-          "nigger",
-          "faggot",
-          "neo-nazi"
-        ],
-
-      "TIMEOUT_TIME": "45 - How Long People are timed out for",
-      "TIMEOUT_LIMIT": "3 - How Many Offense.",
-
-      "UPDATE":"60.0 - Update for viewers, in seconds",
-
-      "OPTIONAL": "1 on/0 off (not for this value)",
-
-
-      "MUSIC_ENABLED": "0",
-
-
-      "BROADCAST_ENABLED": "0",
-
-      "BROADCAST": "",
-      "BROADCAST_SHOWN": "60.0",
-
-
-      "MEDIA_ENABLED": "0",
-
-      "TITLE": "None",
-      "TITLE_SHOWN": "75.0 - Seconds before TITLE",
-
-      "SOCIAL_MEDIA": "None",
-      "MEDIA_SHOWN": "180.0 - Seconds before SOCIAL_MEDIA",
-
-
-      "CURRENCY_ENABLED": "0",
-
-      "CURRENCY_MINUS": "20 - Deduction for Offense",
-
-      "UPDATE_CURRENCY": "3600 - Time till give currency",
-
-      "CURRENCY_VALUE": "15 - How much added in Update time",
-
+  "variables": {
+    "BANNED_WORDS": [
+      "niggers",
+      "nigger",
+      "faggot",
+      "niggas",
+      "nigga",
+      "niqqa",
+      "niqqas"
+    ],
+    "BROADCAST": "",
+    "BROADCASTER": "",
+    "BROADCAST_ENABLED": "0",
+    "BROADCAST_SHOWN": "60.0",
+    "CURRENCY_ENABLED": "0",
+    "CURRENCY_MINUS": "20",
+    "CURRENCY_VALUE": "15",
+    "FOL": "0",
+    "MEDIA_ENABLED": "0",
+    "MEDIA_SHOWN": "180.0",
+    "MUSIC_ENABLED": "0",
+    "OPTIONAL": "NULL",
+    "SOCIAL_MEDIA": "None",
+    "SUBS": "0",
+    "SUB_OAUTH": "",
+    "TIMEOUT_LIMIT": "3",
+    "TIMEOUT_TIME": "45",
+    "TIMEZONE": "",
+    "TITLE": "None",
+    "TITLE_SHOWN": "75.0",
+    "UPDATE": "60.0",
+    "UPDATE_CURRENCY": "3600",
+    "WINDOW_SIZE": "300"
   }
 }

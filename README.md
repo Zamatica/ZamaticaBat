@@ -2,7 +2,7 @@
 
 ZamaticaBat
 -
-ZamaticaBat is a simple python bot for twitch. The connection is base on a IRC connection from Sevadus. It is capable of multiple things, with more to come soon. To run the bot, simply install Python3 and double click on either **zamaticabat_base.py** or **init.py**. 
+ZamaticaBat is a simple python bot for twitch. The connection is base on a IRC connection from Sevadus. It is capable of multiple things, with more to come soon. To run the bot, simply install Python3 and double click on _run.py_ **after** going through setup.py for the first time. 
 ### Table of Contents
  - [Dependencies](#dependencies)
  - [Optional](#optional)
@@ -13,7 +13,7 @@ ZamaticaBat is a simple python bot for twitch. The connection is base on a IRC c
  - [To Do](#to-do)
 
 ##### Author: Zamatica
-Release: 1.4.0<br>
+Release: 1.4.5<br>
 Releases: https://github.com/Zamatica/ZamaticaBat/releases
 
 ##### Tested on Windows
@@ -48,9 +48,9 @@ Releases: https://github.com/Zamatica/ZamaticaBat/releases
  - TIMEZONE
  - BANNED_WORDS
  - Music
- - Media ("MEDIA_ENABLED" : "1") -- Title, Social Media, and Shown
- - Broadcast ("BROADCAST_ENABLED" : "1") -- Broadcast and Shown
- - Currency ("CURRENCY_ENABLED" : "1") -- Minus, Update, and Value
+ - Media -- Title, Social Media, and Shown
+ - Broadcast -- Broadcast and Shown
+ - Currency -- Minus, Update, and Value
 
 ### Full Commands List:
 
@@ -58,7 +58,6 @@ Releases: https://github.com/Zamatica/ZamaticaBat/releases
  - !help - you get the idea
  - !asdf - prints a quote of something
  - !time - displays your pc's time
-	= Varible: TIMEZONE, set to your timezone
  - !uptime - Uptime of the stream (from when bot opened and connected)
  - !stats - displays stats of the sender
  - !quote - displays a quote from quotes.txt
@@ -75,13 +74,19 @@ Releases: https://github.com/Zamatica/ZamaticaBat/releases
  - !coin - add/sub/set currency
  - !update - updates viewers
  - !runset - sets the display to !run
+ - !check <user> - checks for user in database
+ - !add <user> - adds user to database
 		
 - Broadcaster/Editor:
  - !off - turns bot off
  - !broad - turns on broadcast if not on or will run them
 
-
 ### Changelog:
+
+- 1.4.5:
+ - Added setup.py and run.py
+ - Bot now runs off run.py not init.py
+ - Changed the JSON file
 
 - 1.4:
  - Reworked the Code to be more organized

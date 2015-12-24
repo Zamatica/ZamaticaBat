@@ -10,9 +10,11 @@ import json
 import random
 import linecache
 import re
-import sys
 import ctypes
-from updates import *
+import subprocess
+from update import return_x, mod_update, viewer_update
+from sys import exit
+from time import sleep
 
 
 # --------------------------------------------- Start Settings ---------------------------------------------------- #
@@ -94,7 +96,6 @@ connect_bot = 0
 
 run = 'Nothing right now.'
 
-user_reg = {}
 user_mods = {}
 user_subs = {}
 user_fols = {}
@@ -251,6 +252,9 @@ def parse_message(msg):
 
                     '!quoteadd': command_quote_add,
                     '!runset': command_run_update,
+                    '!mod': promote_mod,
+                    '!check': command_check,
+                    '!add': command_add
 
                 }
 
@@ -262,6 +266,7 @@ def parse_message(msg):
                     '!off': command_off,
                     '!broad': command_start_all,
                     '!conn': conntest,
+                    '!mods': send_mod
 
                 }
 
@@ -496,6 +501,7 @@ def command_purchase(item, quantity):
     else:
         send_message(CHAN, "Currency Disabled")
 
+    conn.commit()
     conn.close()
 
 
@@ -593,57 +599,86 @@ def command_admin():
 
 def command_quote_add(quote_list):
     quotes = open('quotes.txt', 'a')
-
     quote = ' '.join(quote_list)
-
     quotes.write('"' + quote + '" ~ ' + BROADCASTER[0].upper() + BROADCASTER[1:20] + ", " + str(datetime.date.today().year))
-
     quotes.write("\r\n")
-
     quotes.close()
-
     send_message(CHAN, "Quote Added: " + quote)
 
 
 def command_run_update(run_update):
-
     global run
-
     run = ' '.join(run_update)
-
     return run
 
 
-# Viewers
+def command_check(name):
+    conn = sqlite3.connect(DATABASE)
+    c = conn.cursor()
+    name = name[0].lower()
+    check = c.execute("SELECT * FROM tableOut WHERE name LIKE ?", [str(name)])
+    if str(name) in list(map(lambda x: x[0], check)):
+        send_message(CHAN, name[0].upper() + name[1:50] + " is in the database.")
+    else:
+        send_message(CHAN, name[0].upper() + name[1:50] + " is not in the database.")
+    conn.commit()
+    conn.close()
 
+
+def command_add(name):
+    conn = sqlite3.connect(DATABASE)
+    c = conn.cursor()
+    name = name[0].lower()
+    c.execute("INSERT OR IGNORE INTO tableOut (name) VALUES (?);", [name])
+    print((name[0].upper() + name[1:50] + " added."))
+    conn.commit()
+    conn.close()
+
+
+# Viewers
 def threading_timer():
     threading.Timer(UPDATE, threading_timer)
+    conn = sqlite3.connect(DATABASE)
+    c = conn.cursor()
 
-    update_viewers_call()
-    update_viewers_call_mod()
+    global user_mods
 
-    global user_mods, user_reg
-
-    user_mods = update_viewers_mods()
-    user_reg = update_viewers()
-
-    update = viewers()
-    update_all(update)
+    user_mods = list(map(lambda x: x[0], c.execute("SELECT * from tableOut WHERE mod = 1;")))
+    conn.commit()
+    conn.close()
 
     update_user_sf()
 
-    send_message(CHAN, "Viewers Updated.")
-    return user_reg, user_mods
+    send_message(CHAN, "Mods Updated.")
+    return user_mods
 
 
 # ViewersUpdate
 def update_command():
-    update_viewers()
-    # Saves data_save
-    update = viewers()
-    # passes data_save to reward_viewers
-    update_all(update)
+    global UPDATE
+    return_x(UPDATE-1)
     update_user_sf()
+    send_message(CHAN, "Viewers Updated.")
+
+
+def promote_mod(name):
+    conn = sqlite3.connect(DATABASE)
+    c = conn.cursor()
+    ''.join(name[0])
+    check = c.execute("SELECT * FROM tableOut WHERE name LIKE ?", [name[0]])
+    if name in list(map(lambda x: x[0], check)):
+        try:
+            send_message(CHAN, "/mod " + name[0])
+            c.execute("UPDATE tableOut SET mod = 1 WHERE name = ?", [name[0]])
+            send_message(CHAN, (name[0])[0].upper() + (name[0])[1:50] + " is now a mod.")
+            print(name[0] + " is now a mod.")
+        except sqlite3.OperationalError:
+            send_message(CHAN, (name[0])[0].upper() + (name[0])[1:50] + " not found in database.")
+            pass
+    else:
+        send_message(CHAN, (name[0])[0].upper() + (name[0])[1:50] + " not found in database.")
+    conn.commit()
+    conn.close()
 
 
 def update_user_sf():
@@ -652,8 +687,9 @@ def update_user_sf():
     c = conn.cursor()
     if SUBS == 1:
         user_subs = list(map(lambda x: x[0], c.execute("SELECT name from tableOut WHERE sub = 1")))
-
     user_fols = list(map(lambda x: x[0], c.execute("SELECT name from tableOut WHERE fol = 1")))
+    conn.commit()
+    conn.close()
 
     return user_subs, user_fols
 
@@ -694,11 +730,11 @@ def command_play_pre():
 # --------------------- #
 def command_off():
     send_message(CHAN, "Logging Off...")
-    sys.exit()
+    updates = subprocess.Popen(['python', 'update.py'])
+    subprocess.Popen.terminate(updates)
+    print("You need to close this window for the bot to fully turn off.")
+    exit()
 
-
-def command_off_gui():
-    sys.exit()
 
 # ---------------- #
 # ---- System ---- #
@@ -761,6 +797,7 @@ def conntest():
         conn = sqlite3.connect(DATABASE)
         send_message(CHAN, "Connection Successful.")
         print("-- DATABASE: Connection Successful.")
+        conn.commit()
         conn.close()
     finally:
         print("")
@@ -771,71 +808,53 @@ def conntest():
 # --------------- #
 def currency_reward_timer():
     threading.Timer(UPDATE_CURRENCY, currency_reward_timer)
-    update = viewers()
-    update_all(update)
 
 
 def command_stats():
-
-    viewer_update()
     name = sender
-
     conn = sqlite3.connect(DATABASE)
     c = conn.cursor()
-
-    for stats in c.execute("SELECT currency FROM tableOut WHERE name LIKE ?", [name]):
-        for offenses in c.execute("SELECT timeout FROM tableOut WHERE name LIKE ?", [name]):
-            if CURRENCY_ENABLED == 0:
-                send_message(CHAN, name + ", " + str(offenses[0]) + " offenses.")
-            if CURRENCY_ENABLED == 1:
-                send_message(CHAN, name + ", you have $" + str(stats[0]) + " and " + str(offenses[0]) + " offenses")
+    name_check = list(map(lambda x: x[0], c.execute("SELECT * FROM tableOut WHERE name LIKE ?", [name])))
+    if name in name_check:
+        for stats in c.execute("SELECT currency FROM tableOut WHERE name LIKE ?", [name]):
+            for offenses in c.execute("SELECT timeout FROM tableOut WHERE name LIKE ?", [name]):
+                if CURRENCY_ENABLED == 0:
+                    send_message(CHAN, name + ", " + str(offenses[0]) + " offenses.")
+                if CURRENCY_ENABLED == 1:
+                    send_message(CHAN, name + ", you have $" + str(stats[0]) + " and " + str(offenses[0]) + " offenses")
+                break
             break
-        break
-
+    else:
+        send_message(CHAN, "@" + name + ", you are not found in the database.")
+    conn.commit()
     conn.close()
 
 
 # SQL Database Code
 def sql_timeout(name):
-
-    # SQL
     conn = sqlite3.connect(DATABASE)
-
     c = conn.cursor()
-
     # Insert a row of data
     c.execute("INSERT OR IGNORE INTO tableOut (name,timeout) VALUES (?,0);", [name])
     #  Update timeout Warnings
     c.execute("UPDATE tableOut SET timeout = timeout + 1 WHERE name = ?;", [name])
-
     for times in c.execute("SELECT timeout FROM tableOut WHERE timeout <= ? and name LIKE ?", [5, name]):
         out = int(times[0])
-
         print("-- OFFENSE: " + name + " = " + str(out) + "/3")
-
         send_message(CHAN, sender + ", warning. " + str(out) + "/3")
-
         if out >= TIMEOUT_LIMIT:
-
             c.execute("UPDATE tableOut SET timeout = timeout - ? WHERE name = ?;", [TIMEOUT_LIMIT, name])
-
             command_timeout_auto(name)
-
             send_message(CHAN, "Offences set to 0 for " + name + ".")
-
             print("-- DATABASE: " + name + " reset to 0 offenses.")
-
             if CURRENCY_ENABLED == 1:
                 c.execute("UPDATE tableOut SET currency = currency - ? WHERE name = ?;", [CURRENCY_MINUS, name])
-
         break
-
     else:
         out = 0  # not found
         name_out = ''  # nothing
         if name_out == '':
             out += 0
-
     conn.commit()
     conn.close()
 
@@ -852,39 +871,75 @@ send_nick(NICK)
 join_channel(CHAN)
 
 data = ""
-BOT_ENABLED = 0
+BOT_ENABLED = 1
+temp_mod = []
 
-send_message(CHAN, "/TWITCHCLIENT 3")
+
+def update_viewers_mods():
+    conn = sqlite3.connect(DATABASE)
+    c = conn.cursor()
+    return_x(UPDATE-1)
+    mod = "SELECT * from tableOut WHERE mod = 1;"
+    mod_save = list(map(lambda x: x[0], c.execute(mod)))
+    return mod_save
+
+
+def send_mod():
+    send_message(CHAN, update_viewers_mods())
 
 
 def connect_no_mod():
 
-    global start
-    global user_mods
-    global NICK
-    global BOT_ENABLED
+    global connect_bot, temp_mod, BOT_ENABLED, NICK, user_mods, start
 
-    update_viewers_mods()
+    user_mods = mod_update()
+    viewers = viewer_update()
     update_user_sf()
 
     if NICK in user_mods or BOT_ENABLED == 1:
-        update_viewers_mods()
-        update_viewers()
+        print(chr(27) + "[2J")
+        return_x(UPDATE-1)
+        print("")
+        print("-- BOT: Connected to " + USER + ". Online and ready. Version 1.4.5b")
+        print("")
+        print("Current Mods:")
+        for mod in user_mods:
+            print(mod)
+        print("")
 
-        print("-- BOT: Connected to " + USER + ". Online and ready. Version 1.3")
-        send_message(CHAN, "Connected and ready to go " + USER + ".")
+        send_message(CHAN, "/TWITCHCLIENT 3")
 
         command_start_all()
-        viewers()
         update_viewers_mods()
-        update_viewers()
 
         start = datetime.datetime.now()
         BOT_ENABLED = 1
         return BOT_ENABLED
+
+    elif NICK in viewers:
+        if temp_mod != user_mods:
+            print(user_mods)
+        else:
+            temp_mod = user_mods
+        t = threading.Timer(1.0, connect_no_mod)
+        if connect_bot == 150:
+            print("This connection does take time.")
+        if connect_bot >= 300:
+            print("Something is wrong. Restart is best bet. ")
+            print("Check the vars.json files to make sure everything is correct.")
+            sleep(4)
+            exit()
+        connect_bot += 1
+        print("-- BOT: [" + str(connect_bot) + "] " + "Waiting to find as Mod...")
+        t.start()
+
     else:
-        global connect_bot
-        t = threading.Timer(10.0, connect_no_mod)
+        if temp_mod != user_mods:
+            print(user_mods)
+            temp_mod = user_mods
+        else:
+            temp_mod = user_mods
+        t = threading.Timer(1.0, connect_no_mod)
         connect_bot += 1
         print("-- BOT: [" + str(connect_bot) + "] " + "Trying to connect...")
         t.start()
@@ -907,54 +962,55 @@ def startup():
 
 
 startup()
+
+
 while True:
-    try:
+        try:
 
-        data = data+con.recv(1024).decode('UTF-8')
-        data_split = re.split(r"[~\r\n]+", data)
-        data = data_split.pop()
+            data = data+con.recv(1024).decode('UTF-8')
+            data_split = re.split(r"[~\r\n]+", data)
+            data = data_split.pop()
 
-        for line in data_split:
-            line = str.rstrip(line)
-            line = str.split(line)
+            for line in data_split:
+                line = str.rstrip(line)
+                line = str.split(line)
+                if len(line) >= 1:
+                    try:
 
-            if len(line) >= 1:
-                try:
+                        if line[0] == 'PING':
+                            send_pong(line[1])
 
-                    if line[0] == 'PING':
-                        send_pong(line[1])
+                        if line[1] == 'PRIVMSG':
+                            sender = get_sender(line[0])
+                            message = get_message(line)
+                            parse_message(message)
 
-                    if line[1] == 'PRIVMSG':
-                        sender = get_sender(line[0])
-                        message = get_message(line)
-                        parse_message(message)
+                            if sender in user_mods:
+                                print("[MOD]" + sender + ": " + message)
+                            elif SUBS == 0 and (sender in user_fols) and (sender not in user_mods):
+                                print("[FOL]" + sender + ": " + message)
+                            elif SUBS == 1 and sender in user_subs and sender not in user_mods:
+                                print("[SUB]" + sender + ": " + message)
+                            else:
+                                print(sender + ": " + message)
 
-                        if sender in user_mods:
-                            print("[MOD]" + sender + ": " + message)
-                        elif SUBS == 0 and (sender in user_fols) and (sender not in user_mods):
-                            print("[FOL]" + sender + ": " + message)
-                        elif SUBS == 1 and sender in user_subs and sender not in user_mods:
-                            print("[SUB]" + sender + ": " + message)
-                        else:
-                            print(sender + ": " + message)
+                    except IndexError:
+                            # Catches "~" in chat to not error
+                            pass
 
-                except IndexError:
-                    # Catches "~" in chat to not error
-                    pass
+        except socket.error or socket.timeout:
+            print("-- WARNING[IRC]: Socket died")
 
-    except socket.error or socket.timeout:
-        print("-- WARNING[IRC]: Socket died")
+        except socket.timeout:
+            print("-- WARNING[IRC]: Socket timeout")
 
-    except socket.timeout:
-        print("-- WARNING[IRC]: Socket timeout")
-
-    except socket.timeout or socket.error:
-        string_start = input("-- SYSTEM: Attempt a Restart? Y/N")
-        yes = {'yes', 'YES', 'y', 'Y', '+'}
-        no = {'no', 'NO', 'n', 'N', '-'}
-        if string_start in yes:
-            print("-- BOT: Attempting Restart...")
-            startup()
-        elif string_start in no:
-            print("-- SYSTEM: Exiting...")
-            sys.exit()
+        except socket.timeout or socket.error:
+            string_start = input("-- SYSTEM: Attempt a Restart? Y/N")
+            yes = {'yes', 'YES', 'y', 'Y', '+'}
+            no = {'no', 'NO', 'n', 'N', '-'}
+            if string_start in yes:
+                print("-- BOT: Attempting Restart...")
+                startup()
+            elif string_start in no:
+                print("-- SYSTEM: Exiting...")
+                exit()
