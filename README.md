@@ -65,7 +65,7 @@ Releases: https://github.com/Zamatica/ZamaticaBat/releases
  - !stats - displays stats of the sender
  - !quote - displays a quote from quotes.txt
  - !coin - displays current currency (if not mod/broadcaster)
-  - !run - shows the runs(?)
+ - !run - shows the runs(?)
 		
 - Mods:
  - !on - test to see if bot running

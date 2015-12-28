@@ -42,11 +42,14 @@ TIMEZONE = VARS["variables"]["TIMEZONE"]  # Change to Yours
 
 MEDIA_ENABLED = int(VARS["variables"]["MEDIA_ENABLED"])  # Show title/media every time. Default 0
 
-TITLE = VARS["variables"]["TITLE"]   # Update Every Stream - Shown every TITLE_SHOWN seconds, default 75.0
-TITLE_SHOWN = float(VARS["variables"]["TITLE_SHOWN"])
-
 SOCIAL_MEDIA = VARS["variables"]["SOCIAL_MEDIA"]  # Add info here - Shown every MEDIA_SHOWN seconds, default 180.0
 MEDIA_SHOWN = float(VARS["variables"]["MEDIA_SHOWN"])
+
+
+TITLE_ENABLED = int(VARS["variables"]["TITLE_ENABLED"])
+
+TITLE = VARS["variables"]["TITLE"]   # Update Every Stream - Shown every TITLE_SHOWN seconds, default 75.0
+TITLE_SHOWN = float(VARS["variables"]["TITLE_SHOWN"])
 
 
 BROADCAST_ENABLED = int(VARS["variables"]["BROADCAST_ENABLED"])
@@ -745,9 +748,14 @@ def command_off():
 def command_start_all():
 
     if MEDIA_ENABLED == 1:
+        social_media_func()
+        print(SOCIAL_MEDIA)
+        print("-- SYSTEM: Social Media Enabled.")
+
+    if TITLE_ENABLED == 1:
         title()
         print(TITLE)
-        print("-- SYSTEM: Broadcast Enabled.")
+        print("-- SYSTEM: Title Enabled.")
 
     if BROADCAST_ENABLED == 1:
         printout()
@@ -761,7 +769,7 @@ def command_start_all():
     if MUSIC_ENABLED == 1:
         print("-- SYSTEM: Music Enabled.")
 
-    if MUSIC_ENABLED and BROADCAST_ENABLED and CURRENCY_ENABLED and MEDIA_ENABLED == 0:
+    if (MUSIC_ENABLED + BROADCAST_ENABLED + CURRENCY_ENABLED + MEDIA_ENABLED + TITLE_ENABLED) == 0:
         print("-- SYSTEM: No Extra Features Loaded.")
 
 
@@ -770,9 +778,14 @@ def title():
     send_message(CHAN, TITLE)
 
 
-def printout():
-    threading.Timer(BROADCAST_SHOWN, BROADCAST)
+def social_media_func():
+    threading.Timer(MEDIA_SHOWN, social_media_func)
     send_message(CHAN, SOCIAL_MEDIA)
+
+
+def printout():
+    threading.Timer(BROADCAST_SHOWN, printout)
+    send_message(CHAN, BROADCAST)
 
 
 def command_timeout_auto_1(name):
