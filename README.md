@@ -122,3 +122,4 @@ Releases: https://github.com/Zamatica/ZamaticaBat/releases
 ### To Do:
 
  - Volume Control
+ - Youtube Gaming when API Available
