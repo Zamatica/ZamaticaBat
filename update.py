@@ -73,21 +73,34 @@ def update_all(data_loaded):
 
 
 def update_start():
-    response = urllib.request.urlopen(URL)
-    data_save = json.loads(response.read().decode(response.info().get_param('charset') or 'utf-8'))
-    return update_all(data_save)
+    try:
+        response = urllib.request.urlopen(URL)
+        data_save = json.loads(response.read().decode(response.info().get_param('charset') or 'utf-8'))
+        return update_all(data_save)
+    except urllib.error.HTTPError:
+        print("-- WARNING: 502 Bad Gateway. Updating Every 2 minutes.")
+        pass
+        global UPDATE
+        UPDATE = 120
+        return UPDATE, return_x(0)
 
 
 def mod_update():
-    mod_data = urllib.request.urlopen(URL)
-    mod_list = json.loads(mod_data.read().decode(mod_data.info().get_param('charset') or 'utf-8'))
-    return mod_list["chatters"]["moderators"]
+    try:
+        mod_data = urllib.request.urlopen(URL)
+        mod_list = json.loads(mod_data.read().decode(mod_data.info().get_param('charset') or 'utf-8'))
+        return mod_list["chatters"]["moderators"]
+    except urllib.error.HTTPError:
+        print("-- WARNING: 502 Bad Gateway.")
 
 
 def viewer_update():
-    viewer_data = urllib.request.urlopen(URL)
-    viewer_list = json.loads(viewer_data.read().decode(viewer_data.info().get_param('charset') or 'utf-8'))
-    return viewer_list["chatters"]["viewers"]
+    try:
+        viewer_data = urllib.request.urlopen(URL)
+        viewer_list = json.loads(viewer_data.read().decode(viewer_data.info().get_param('charset') or 'utf-8'))
+        return viewer_list["chatters"]["viewers"]
+    except urllib.error.HTTPError:
+        print("-- WARNING: 502 Bad Gateway.")
 
 
 # --------------------------------------------------------------------------------------------------------------------------------------------- #
