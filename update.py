@@ -60,6 +60,7 @@ def update_all(data_loaded):
         num += 1
     for name_mods in mods:
         c.execute("INSERT OR IGNORE INTO tableOut (name) VALUES (?);", [name_mods])
+        c.execute("UPDATE tableOut SET mod = 1 WHERE name = ?;", [name_mods])
         num_mods += 1
     print("-- IRC: There are " + str(len(users)) + " viewing and " + str(len(mods)) + " moderators currently watching.")
     conn.commit()
@@ -77,6 +78,7 @@ def update_start():
         response = urllib.request.urlopen(URL)
         data_save = json.loads(response.read().decode(response.info().get_param('charset') or 'utf-8'))
         return update_all(data_save)
+
     except urllib.error.HTTPError:
         print("-- WARNING: 502 Bad Gateway. Updating Every 2 minutes.")
         pass

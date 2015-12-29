@@ -179,7 +179,7 @@ def parse_message(msg):
 
             msg_join = ' '.join(msg)
 
-            if msg_join.isupper():
+            if msg_join.isupper() and msg_join.isupper() not in ['D', 'C', 'P']:
                 if sender in user_mods:
                     command_null()
                 else:
@@ -204,6 +204,7 @@ def parse_message(msg):
                     '!coin': command_null,
                     '!quote': random_quote,
                     '!run': command_run,
+                    '!mods': send_mod,
 
 
                     'FrankerZ': frankerz,
@@ -268,8 +269,7 @@ def parse_message(msg):
                     # Commands only given to BroadCaster from BROADCASTER VARIABLE
                     '!off': command_off,
                     '!broad': command_start_all,
-                    '!conn': conntest,
-                    '!mods': send_mod
+                    '!conn': conntest
 
                 }
 
@@ -622,18 +622,24 @@ def command_check(name):
     check = c.execute("SELECT * FROM tableOut WHERE name LIKE ?", [str(name)])
     if str(name) in list(map(lambda x: x[0], check)):
         send_message(CHAN, name[0].upper() + name[1:50] + " is in the database.")
+        conn.commit()
+        conn.close()
+        return True
     else:
         send_message(CHAN, name[0].upper() + name[1:50] + " is not in the database.")
-    conn.commit()
-    conn.close()
+        conn.commit()
+        conn.close()
+        return False
 
 
 def command_add(name):
     conn = sqlite3.connect(DATABASE)
     c = conn.cursor()
-    name = name[0].lower()
-    c.execute("INSERT OR IGNORE INTO tableOut (name) VALUES (?);", [name])
-    print((name[0].upper() + name[1:50] + " added."))
+    name_str = name[0].lower()
+    punc = name_str[0].upper() + name_str[1:50]
+    if command_check(name) is False:
+        c.execute("INSERT OR IGNORE INTO tableOut (name) VALUES (?);", [name_str])
+        send_message(CHAN, punc + " added.")
     conn.commit()
     conn.close()
 
@@ -667,19 +673,19 @@ def update_command():
 def promote_mod(name):
     conn = sqlite3.connect(DATABASE)
     c = conn.cursor()
-    ''.join(name[0])
-    check = c.execute("SELECT * FROM tableOut WHERE name LIKE ?", [name[0]])
-    if name in list(map(lambda x: x[0], check)):
+    name = name[0].lower()
+    check = c.execute("SELECT * FROM tableOut WHERE name LIKE ?", [name])
+    if str(name) in list(map(lambda x: x[0], check)):
         try:
-            send_message(CHAN, "/mod " + name[0])
-            c.execute("UPDATE tableOut SET mod = 1 WHERE name = ?", [name[0]])
-            send_message(CHAN, (name[0])[0].upper() + (name[0])[1:50] + " is now a mod.")
-            print(name[0] + " is now a mod.")
+            send_message(CHAN, "/mod " + name)
+            c.execute("UPDATE tableOut SET mod = 1 WHERE name = ?", [name])
+            send_message(CHAN, name[0].upper() + name[1:50] + " is now a mod.")
+            print(name + " is now a mod.")
         except sqlite3.OperationalError:
-            send_message(CHAN, (name[0])[0].upper() + (name[0])[1:50] + " not found in database.")
+            send_message(CHAN, name[0].upper() + name[1:50] + " not found in database. Operational Error based.")
             pass
     else:
-        send_message(CHAN, (name[0])[0].upper() + (name[0])[1:50] + " not found in database.")
+        send_message(CHAN, name[0].upper() + name[1:50] + " not found in database.")
     conn.commit()
     conn.close()
 
