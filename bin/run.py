@@ -1,13 +1,18 @@
-__author__ = 'Zamatica'
+# !/usr/bin/env python3
 from multiprocessing import Process
 from os import system
-from update import update_timer
+
+from updates import update_timer
+
+with open("systems/connection.txt", 'w'):
+    pass
 
 
 def start():
     print("")
-    system("zamaticabat_base.py 1")
+    system("base.py 1")
     print("")
+
 
 if __name__ == '__main__':
     startup = Process(target=start)

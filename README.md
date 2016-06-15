@@ -40,7 +40,7 @@ Releases: https://github.com/Zamatica/ZamaticaBat/releases
 	
 	
 ### Variables:
-
+Can use setup.py for this.
 
 - Connections
  - CHAN
@@ -79,13 +79,19 @@ Releases: https://github.com/Zamatica/ZamaticaBat/releases
  - !runset - sets the display to !run
  - !check <user> - checks for user in database
  - !add <user> - adds user to database
- - !p(p, n) - Controls Music all but volume.
+ - !play - Play/Pause
+ - !next - Next Song
+ - !prev - Previous Song
 		
 - Broadcaster/Editor:
  - !off - turns bot off
  - !broad - turns on broadcast if not on or will run them
 
 ### Changelog:
+
+- 1.5:
+ - Recoded to be nicer design.
+ - Changed !p to !play and other such commands
 
 - 1.4.5:
  - Added setup.py and run.py

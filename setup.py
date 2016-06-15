@@ -1,3 +1,4 @@
+# !/usr/bin/env python3
 import sqlite3
 import json
 import webbrowser as wb
@@ -11,7 +12,7 @@ print("Some things are 1 or 0   |   1 means Yes and 0 means No. \n")
 
 
 def json_write(section, field, value):
-    with open('vars.json', 'r+') as settings_file:
+    with open('bin/config/vars.json', 'r+') as settings_file:
         settings = json.load(settings_file)
 
         settings[section][field] = value
@@ -22,7 +23,7 @@ def json_write(section, field, value):
 
 
 def ban_words_parse(banned_words):
-    with open('vars.json', 'r+') as settings_file:
+    with open('bin/config/vars.json', 'r+') as settings_file:
         settings = json.load(settings_file)
         words = banned_words.split(',')
         main = settings["variables"]["BANNED_WORDS"]
@@ -47,35 +48,41 @@ def ban_words_parse(banned_words):
 
 def sql():
     sql_clear = input("Are you sure? (Y/N)")
-    if sql_clear.upper() == 'Y':
-        remove('users.db')
-        conn = sqlite3.connect('users.db')
+    if sql_clear.upper() in ['Y', 'YES']:
+        remove('bin/user/users.db')
+        conn = sqlite3.connect('user/users.db')
         c = conn.cursor()
         c.execute('''
-        CREATE TABLE `tableOut` (`name`	TEXT UNIQUE,`mod`INTEGER DEFAULT 0,`timeout`INTEGER DEFAULT 0,`currency`REAL DEFAULT 0.00,`fol`	INTEGER DEFAULT 0,`sub`	INTEGER DEFAULT 0);
+            CREATE TABLE `users` (
+                `ID`	INTEGER UNIQUE,
+                `name`	TEXT UNIQUE,
+                `gold`	REAL DEFAULT 0,
+                `timeouts`	INTEGER DEFAULT 0,
+                `mod`	INTEGER DEFAULT 0,
+                `follower`	INTEGER DEFAULT 0,
+                `sub`	INTEGER DEFAULT 0,
+                PRIMARY KEY(ID)
+            );
         ''')
         print("New Database Created.")
         print("Settings Finished. Have Fun!")
-        sleep(2)
+        sleep(3)
         exit()
     else:
         exit()
 
 
 def json_reset():
-    with open('vars.json', 'w') as settings_file:
+    with open('bin/config/vars.json', 'w') as settings_file:
         default = '{"connection":{"HOST":"irc.twitch.tv","PORT":"6667","CHAN":"","NICK":"","PASS":""},"variables":{"BROADCASTER":"","TIMEZONE":"","TIMEOUT_TIME":"45","TIMEOUT_LIMIT":"3","UPDATE":"60.0","FOL":"0","BANNED_WORDS":["niggers","nigger","faggot","niggas","nigga","niqqa","niqqas"],"OPTIONAL":"NULL","SUBS":"0","SUB_OAUTH":"","MUSIC_ENABLED":"0","BROADCAST_ENABLED":"0","BROADCAST":"","BROADCAST_SHOWN":"60.0","MEDIA_ENABLED":"0","TITLE":"None","TITLE_SHOWN":"75.0","SOCIAL_MEDIA":"None","MEDIA_SHOWN":"180.0","CURRENCY_ENABLED":"0","CURRENCY_MINUS":"20","UPDATE_CURRENCY":"3600","CURRENCY_VALUE":"15","WINDOW_SIZE":"300"}}'
         def_read = json.loads(default)
         json.dump(def_read, settings_file, sort_keys=True, indent=2, ensure_ascii=False)
         print("Reset without error. Yay!")
         sleep(2)
-
 x = input("Do you want to run setup or other action? \nY -runs setup\nN -exits\nClearDB -clears the database\nResetJson (rj) -resets the JSON file to default. \n\n")
 print('')
-
-if x.upper() == 'Y':
-    with open('vars.json', 'r') as VARS:
-
+if x.upper() in ['Y', 'YES']:
+    with open('bin/config/vars.json', 'r') as VARS:
         channel = input("Your Channel name (Not the Bot's Username): \n")
         json_write('connection', 'CHAN', '#'+str(channel).lower())
         json_write('variables', 'BROADCASTER', str(channel).lower())
@@ -85,6 +92,11 @@ if x.upper() == 'Y':
         print('')
         password = input("oAuth Pass (You can copy/paste it here): \n")
         json_write('connection', 'PASS', str(password))
+        print('')
+        editors = input("Put any channel editors here separate by a comma (Don't include you or bot): \n")
+        editors = editors.split(',')
+        editors = [editor.replace(' ','') for editor in editors]
+        json_write('variables', 'EDITORS', editors)
         print('')
         timezone = input("Timezone?: \n")
         json_write('variables', 'TIMEZONE', str(timezone).upper())
@@ -132,8 +144,6 @@ if x.upper() == 'Y':
         VARS.close()
         sleep(10)
         exit()
-
-
 elif x.upper() == 'CLEARDB':
     sql()
 elif x.lower() in ['resetjson', 'rj']:
@@ -144,7 +154,10 @@ elif x.lower() in ['resetjson', 'rj']:
         print("Exiting...")
         sleep(1)
         exit()
-
+elif x.upper() in ['N', 'NO']:
+    print("Exiting...")
+    sleep(1)
+    exit()
 else:
     print("Not a command. Restart")
     sleep(1)
