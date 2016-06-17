@@ -16,7 +16,7 @@ To run the bot, simply install **Python3** and double click on **setup.py**, fol
  - [To Do](#to-do)
 
 ##### Author: Zamatica
-Release: 1.4.5<br>
+Release: 1.5<br>
 Releases: https://github.com/Zamatica/ZamaticaBat/releases
 
 ##### Tested on Windows
@@ -32,7 +32,7 @@ Releases: https://github.com/Zamatica/ZamaticaBat/releases
 - Running your JSON file through [JSONLint](http://jsonlint.com/) - Checks it
 	
 ### Streaming:
-- [Snip](https://github.com/dlrudie/Snip/releases/tag/v5.0.5) - outputs a text that shows Artist and Songs
+- [Snip](https://github.com/dlrudie/Snip/releases) - outputs a text that shows Artist and Songs
  -  Refer here for NowPlaying Guide: https://obsproject.com/forum/threads/now-playing-music-for-spotify-itunes-winamp-on-stream.925/
 
 - If you have subscribers and want your bot to see them you need to connect your twitch account with the bot
