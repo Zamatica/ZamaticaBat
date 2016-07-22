@@ -1,12 +1,12 @@
 # !/usr/bin/env python3
 import ctypes, datetime, sqlite3, threading
 
-from updates import follower_sub_update
-import connections as con
-import vars as variable
+from users.updates import follower_sub_update
+import systems.connections as con
+import config.variable as variable
 
 
-USERS = 'users/users.db'
+USERS = variable.USERS
 
 send_message = con.send_message
 
@@ -88,7 +88,7 @@ def command_pong():
 
 
 def command_quote_add(quote_list):
-    quotes = open('/systems/quotes.txt', 'a')
+    quotes = open('config/quotes.txt', 'a')
     quote = ' '.join(quote_list)
     quotes.write('"' + quote + '" ~ ' + variable.BROADCASTER[0].upper() + variable.BROADCASTER[1:20] + ", " + str(datetime.date.today().year))
     quotes.write("\n")
@@ -105,15 +105,16 @@ def command_run_update(run_update):
 def command_check(name):
     conn = sqlite3.connect(USERS)
     c = conn.cursor()
-    name = name[0].lower()
-    check = c.execute("SELECT * FROM users WHERE name LIKE ?", [str(name)])
-    if str(name) in list(map(lambda x: x[0], check)):
-        send_message(name[0].upper() + name[1:50] + " is in the USERS.")
+    name = name[0]
+    print(name)
+    check = c.execute("SELECT name FROM users WHERE name LIKE ?", [name,])
+    if name in list(map(lambda x: x[1], check)):
+        send_message(name[0] + " is in the USERS.")
         conn.commit()
         conn.close()
         return True
     else:
-        send_message(name[0].upper() + name[1:50] + " is not in the USERS.")
+        send_message(name + " is not in the USERS.")
         conn.commit()
         conn.close()
         return False

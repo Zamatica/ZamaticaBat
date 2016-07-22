@@ -2,15 +2,15 @@
 from multiprocessing import Process
 from os import system
 
-from updates import update_timer
+from users.updates import update_timer
 
-with open("systems/connection.txt", 'w'):
+with open("bin/systems/connection.txt", 'w'):
     pass
 
 
 def start():
     print("")
-    system("base.py 1")
+    system("python bin/base.py")
     print("")
 
 

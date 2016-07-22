@@ -1,6 +1,6 @@
 # !/usr/bin/env python3
 import socket
-import vars as variable
+import config.variable as variable
 
 connection = socket.socket()
 connection.connect((variable.HOST, variable.PORT))
@@ -54,8 +54,3 @@ def get_message(msg):
         i += 1
     result = result.lstrip(':')
     return result
-
-
-send_pass(variable.PASS)
-send_nick(variable.NICK)
-join_channel(variable.CHAN)

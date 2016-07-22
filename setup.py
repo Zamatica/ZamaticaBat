@@ -81,7 +81,7 @@ def json_reset():
         sleep(2)
 x = input("Do you want to run setup or other action? \nY -runs setup\nN -exits\nClearDB -clears the database\nResetJson (rj) -resets the JSON file to default. \n\n")
 print('')
-if x.upper() in ['Y', 'YES']:
+if x.upper() == ['Y', 'YES']:
     with open('bin/config/vars.json', 'r') as VARS:
         channel = input("Your Channel name (Not the Bot's Username): \n")
         json_write('connection', 'CHAN', '#'+str(channel).lower())
@@ -101,7 +101,7 @@ if x.upper() in ['Y', 'YES']:
         timezone = input("Timezone?: \n")
         json_write('variables', 'TIMEZONE', str(timezone).upper())
         print('')
-        ban_words = input("Banned Words: Words you don't want on the chat, separate with a comma. Hit Enter for default. \n")
+        ban_words = input("Banned Words:\nWords you don't want on the chat, separate with a comma, lowercase.\nOr use twitch\nHit Enter for default. \n")
         ban_words_parse(ban_words)
         print('')
         subs = input("If you have subs and want to enable them please refer here: https://github.com/Zamatica/ZamaticaBat/#streaming. Enter 1 to go there now. \n")

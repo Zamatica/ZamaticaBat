@@ -7,9 +7,9 @@ import os
 from sys import exit
 from time import sleep
 
-import vars as variable
+import config.variable as variable
 
-USERS = 'users/users.db'
+USERS = variable.USERS
 UPDATE = variable.UPDATE
 
 
@@ -22,7 +22,7 @@ user_mods, user_subs, user_followers, editors = {}, {}, {}, {}
 
 def update_timer():
     global UPDATE, x
-    while os.path.isfile("systems/connection.txt"):
+    while os.path.isfile("bin/systems/connection.txt"):
         if x >= UPDATE:
             update()
             return_x(0)
@@ -30,7 +30,7 @@ def update_timer():
             x += 1
             return_x(x)
             sleep(1)
-    if os.path.isfile("systems/connection.txt") is False:
+    if os.path.isfile("bin/systems/connection.txt") is False:
         print("Updates Exiting...")
         exit()
 

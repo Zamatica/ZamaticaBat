@@ -1,15 +1,15 @@
 # !/usr/bin/env python3
 import sqlite3, threading
-from sys import path
-import connections as con
-import vars as variable
+import systems.connections as con
+import config.variable as variable
 
-USERS = 'users/users.db'
+USERS = variable.USERS
 
 send_message = con.send_message
 
 
 def command_start_all():
+
 
     if variable.MEDIA_ENABLED == 1:
         social_media_func()

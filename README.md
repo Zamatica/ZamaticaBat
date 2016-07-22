@@ -16,7 +16,7 @@ To run the bot, simply install **Python3** and double click on **setup.py**, fol
  - [To Do](#to-do)
 
 ##### Author: Zamatica
-Release: 1.5<br>
+Release: 1.5.5<br>
 Releases: https://github.com/Zamatica/ZamaticaBat/releases
 
 ##### Tested on Windows
@@ -88,6 +88,10 @@ Can use setup.py for this.
  - !broad - turns on broadcast if not on or will run them
 
 ### Changelog:
+
+- 1.5.5
+ - Redid files to be even nicer.
+ - Reload feature coming soon.
 
 - 1.5:
  - Recoded to be nicer design.

@@ -3,14 +3,14 @@ import datetime
 import linecache
 import random
 import sqlite3
-from updates import get_mods
+from users.updates import get_mods
 
-from background import sql_timeout
-import connections as con
-import vars as variable
+from systems.background import sql_timeout
+import systems.connections as con
+import config.variable as variable
 
 
-USERS = 'users/users.db'
+USERS = variable.USERS
 
 send_message = con.send_message
 
@@ -126,7 +126,7 @@ def command_coin(cmd='help', amount='01', name='01'):
 def command_quote():
     number = random.randint(0, len(open('systems/quotes.txt').readlines())+1)
     try:
-        quotes = 'systems/quotes.txt'
+        quotes = 'config/quotes.txt'
         line_quote = linecache.getline(quotes, number)
         if line_quote != '':
             send_message(line_quote)

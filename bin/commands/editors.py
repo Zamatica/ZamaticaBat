@@ -2,7 +2,7 @@
 from sys import exit
 import os
 
-import connections as con
+import systems.connections as con
 
 send_message = con.send_message
 
@@ -15,7 +15,7 @@ def command_off():
     send_message("Logging Off...")
     print("")
     print("-- SYSTEM: Commands Stopped.")
-    os.remove("systems/connection.txt")
+    os.remove("bin/systems/connection.txt")
     exit()
 
 

@@ -1,16 +1,15 @@
 {
   "connection": {
-    "CHAN": "#not",
-    "CHAN_WHISPER": "5",
+    "CHAN": "",
+    "CHAN_WHISPER": "",
     "HOST": "irc.twitch.tv",
     "HOST_WHISPER": "irc.chat.twitch.tv",
     "NICK": "",
-    "PASS": "",
+    "PASS": "oauth:",
     "PORT": "6667"
   },
   "variables": {
     "BANNED_WORDS": [
-      "",
       "niggers",
       "blurryface",
       "niggers",
@@ -23,7 +22,7 @@
       "cunt"
     ],
     "BROADCAST": "Test Stream for bot.",
-    "BROADCASTER": "not",
+    "BROADCASTER": "",
     "BROADCAST_ENABLED": "0",
     "BROADCAST_SHOWN": "60.0",
     "CURRENCY_ENABLED": "0",

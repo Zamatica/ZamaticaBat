@@ -1,15 +1,15 @@
 # !/usr/bin/env python3
-import datetime
+import os
 import re
 import socket
 
-from updates import update, update_mod, get_mods
-import connections as con, viewers, mods, editors as edit, background, vars as variable
+from users.updates import update, update_mod, get_mods
+import systems.connections as con, commands.viewers as viewers, commands.mods as mods, commands.editors as edit, systems.background as background, config.variable as variable
 
 
 connect_bot = 0
 
-USERS = 'users/users.db'
+USERS = variable.USERS
 start = variable.start
 
 user_mods = get_mods()
@@ -30,7 +30,7 @@ options = {
     '!coin': viewers.command_null, '!quote': viewers.command_quote, '!time': viewers.command_time, '!mods': viewers.send_mod, 'FrankerZ': viewers.frankerz,
 }
 options_pass = {
-    '!help': viewers.command_help, '!run': viewers.command_run, '!stats': viewers.command_stats, '!purchase': viewers.command_purchase
+    '!help': viewers.command_help, '!run': viewers.command_run, '!stats': viewers.command_stats, '!purchase': viewers.command_purchase, '!uptime': viewers.command_uptime
 }
 options_mod = {
     '!on': mods.command_on, '!runtime': mods.command_runtime, '!ping': mods.command_pong, '!update': update_mod, '!play': mods.command_play_pause, '!next': mods.command_play_next,
@@ -59,8 +59,7 @@ def msg_parse(msg):
     msg = msg.split(' ')
     if len(msg) >= 1:
         for word in msg[0:50]:
-            if word in variable.BANNED_WORDS:
-                edit.command_timeout(sender, 1)
+            edit.command_timeout(sender, 1) if word in variable.BANNED_WORDS else viewers.command_null()
             break
 
         msg_join = " ".join(msg)
@@ -120,6 +119,9 @@ def msg_parse_mod(msg):
 def msg_parse_editor(msg):
     global options_editor
     msg = msg.split(' ')
+    for word in msg[0:50]:
+        if word.lower() in variable.BANNED_WORDS:
+            con.send_message(str(variable.BANNED_WORDS))
     if len(msg) >= 1:
         if len(sender) > 0:
             if msg[0] in options_editor:
@@ -150,32 +152,38 @@ temp_mod = []
 
 def restart():
     print("-- WARNING[IRC]: Socket timeout")
+    print("-- INFO[BOT]: Could just be !off command too.")
     string_start = input("-- SYSTEM: Attempt a Restart? (Y/N)   ")
     yes = {'yes', 'YES', 'y', 'Y', '+'}
     no = {'no', 'NO', 'n', 'N', '-'}
     if string_start in yes:
+        print("")
+        print("")
         print("-- BOT: Attempting Restart...")
+        os.system('python bin/run.py')
     elif string_start in no:
         print("-- SYSTEM: Exiting...")
         exit()
 
 
 def startup():
+    con.send_pass(variable.PASS)
+    con.send_nick(variable.NICK)
+    con.join_channel(variable.CHAN)
     background.command_start_all()
     print("")
     print("-- BOT: Version 1.5")
     print("-- BOT: Connected and Ready.")
     print("")
-    print("Running Updates...")
+    print(" Running Updates...")
     update()
-    print("Updates Finished")
-    print("Current moderators: " + str(user_mods))
+    print(" Updates Finished")
+    print(" Current moderators: " + str(user_mods))
     print("")
-    con.send_message("Connected to " + variable.USER + ".")
+    con.send_message(" Connected to " + variable.USER + ".")
     edit.editor_command()
     mods.mod_commands()
     viewers.viewer_commands()
-    con.send_message("/TWITCHCLIENT 3")
 
 
 startup()
@@ -201,26 +209,28 @@ while True:
 
                         if sender in editors:
                             msg_parse_editor(message)
-                            print(sender + "[EDITOR]: " + message)
+                            print(" " + sender + "[EDITOR]: " + message)
                         elif sender in user_mods:
                             msg_parse_mod(message)
-                            print(sender + "[MOD]: " + message)
+                            print(" " + sender + "[MOD]: " + message)
                         else:
                             msg_parse(message)
                             if sender in user_followers:
-                                print(sender + "[FOL]: " + message)
+                                print(" " + sender + "[FOL]: " + message)
                             elif sender in user_subs and variable.SUB_ENABLED == 1:
-                                print(sender + "[SUB]: " + message)
+                                print(" " + sender + "[SUB]: " + message)
                             else:
-                                print(sender + ": " + message)
+                                print(" " + sender + ": " + message)
                 except IndexError:
                     # catches ~ to not error
                     pass
     except socket.error:
-        print("-- IRC: Cannot Read Chat")
-        print("-- CRITICAL: Socket Closed | Error.")
-        restart()
+        if os.path.isfile("bin/systems/connection.txt"):
+            print("-- IRC: Cannot Read Chat")
+            print("-- CRITICAL: Socket Closed | Error.")
+            restart()
     except socket.timeout:
-        print("-- IRC: Cannot Read Chat")
-        print("-- CRITICAL: Socket Closed | Timeout.")
-        restart()
+        if os.path.isfile("bin/systems/connection.txt"):
+            print("-- IRC: Cannot Read Chat")
+            print("-- CRITICAL: Socket Closed | Timeout.")
+            restart()

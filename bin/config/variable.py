@@ -1,7 +1,7 @@
 # !/usr/bin/env python3
 import json, datetime
 
-with open("config/vars.json") as file:
+with open("bin/config/vars.json") as file:
     VARS = json.load(file)
 
 HOST = VARS["connection"]["HOST"]                  # Host
@@ -51,3 +51,5 @@ CURRENCY_ENABLED = int(VARS["variables"]["CURRENCY_ENABLED"])
 CURRENCY_MINUS = int(VARS["variables"]["CURRENCY_MINUS"])
 CURRENCY_VALUE = int(VARS["variables"]["CURRENCY_VALUE"])
 UPDATE_CURRENCY = int(VARS["variables"]["UPDATE_CURRENCY"])
+
+USERS = 'bin/users/users.db'
